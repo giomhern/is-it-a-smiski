@@ -1,0 +1,53 @@
+# === GLOBAL (common to all OS and devs) ===
+.DS_Store
+Thumbs.db
+.env
+.env.local
+*.log
+
+# === PYTHON / DJANGO (backend) ===
+backend/__pycache__/
+backend/**/*.py[cod]
+backend/*.sqlite3
+backend/env/
+backend/venv/
+backend/*.pyc
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/db.sqlite3
+
+# Django specific
+backend/media/
+backend/staticfiles/
+backend/.coverage
+backend/coverage.xml
+
+# === NODE / NEXT.JS (frontend) ===
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+frontend/.eslintcache
+frontend/next-env.d.ts
+frontend/package-lock.json
+frontend/yarn.lock
+
+# Optional: lock files if you want clean installs across machines
+# You can comment out the one you're using (yarn/npm/pnpm)
+# frontend/pnpm-lock.yaml
+
+# === VSCODE / IDEs ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === MAC / OS ===
+**/.DS_Store
+
+# === DOCKER / BUILD FILES (optional) ===
+*.bak
+*.tar
+*.gz
+*.zip
+*.egg-info/
