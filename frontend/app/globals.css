@@ -1,13 +1,29 @@
 @import "tailwindcss";
 
 :root {
+  /* Base colors */
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Smiski palette */
+  --smiski-pale-green: #B4E197;
+  --smiski-mint: #DFFFD6;
+  --smiski-soft-yellow: #FFF7AE;
+  --smiski-pastel-peach: #FFE6CC;
+  --smiski-muted-gray: #A9A9A9;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  /* Map Smiski colors into theme */
+  --color-smiski-pale-green: var(--smiski-pale-green);
+  --color-smiski-mint: var(--smiski-mint);
+  --color-smiski-soft-yellow: var(--smiski-soft-yellow);
+  --color-smiski-pastel-peach: var(--smiski-pastel-peach);
+  --color-smiski-muted-gray: var(--smiski-muted-gray);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
