@@ -214,11 +214,6 @@ export default function DragDropImageBox({
         onChange={onInputChange}
       />
 
-      {/* Helper text */}
-      <p className="mb-3 text-lg text-zinc-500 text-center font-medium">
-        Let's Find Out If You Have a Smiski! 
-      </p>
-
       {/* Drop zone */}
       <motion.div
         role="button"
@@ -324,8 +319,7 @@ export default function DragDropImageBox({
 
       {/* Helper text */}
       <p className="mt-3 text-xs text-zinc-500">
-        Accepted: {accept.join(", ") || "any"}. Tip: You can also paste
-        (Ctrl/Cmd+V) into the browser file dialog.
+        Accepted: {accept.join(", ") || "any"}. Tip: Ctrl/Cmd + V to open the browser file dialog. 
       </p>
     </div>
   );

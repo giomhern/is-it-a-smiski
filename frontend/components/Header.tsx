@@ -6,7 +6,7 @@ export type HeaderProps = {
 
 export default function Header({ className = "" }: HeaderProps) {
   return (
-    <div className={"w-full " + className}>
+    <div className={"w-full mb-5" + className}>
       <div className="flex flex-col items-center justify-center">
         <Image
           src={"/logo.png"}
