@@ -1,6 +1,6 @@
-# MySmiski 
+# Is It a Smiski? 
 
-MySmiski is a cute, AI-powered app for detecting and collecting Smiski figurines. Snap a photo, and we'll tell you which Smiski you found!
+`Is it a smiski?` is a cute, machine learning web app that enables user to quickly identify whether they have a smiski or not. Drag and drop your image and we let you know if you have a smiski in your hands. 
 
 If you are unfamiliar with what Smiskis are, feel free to have a look [here](https://smiski.com/e/smiski/). I am not sponsored (though, I would not mind if they did) -- I am just a small Smiski collector who thought this would be a fun little project.
 
