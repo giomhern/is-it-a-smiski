@@ -53,5 +53,4 @@ frontend/yarn.lock
 *.zip
 *.egg-info/
 
-
-data
+backend/models/*.pt
