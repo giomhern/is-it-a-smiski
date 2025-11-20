@@ -1,5 +1,5 @@
-from ..backend.transfer.main import SmiskiClassifier
 import argparse
+from backend.transfer.main import SmiskiClassifier
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test Smiski classifier on an image.")
