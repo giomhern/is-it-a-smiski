@@ -5,6 +5,9 @@ Thumbs.db
 .env.local
 *.log
 
+**/*/__pycache__/
+**/__pycache__/
+
 # === PYTHON / DJANGO (backend) ===
 backend/__pycache__/
 backend/**/*/__pycache__/
