@@ -21,6 +21,10 @@ export type DragDropImageBoxProps = {
   className?: string;
   /** Start with these files already selected (e.g., from server) */
   initialFiles?: File[];
+  /** Optional API URL (defaults to NEXT_PUBLIC_API_URL + /api/predict or relative /api/predict) */
+  apiUrl?: string;
+  /** Optional callback with server result */
+  onResult?: (result: any) => void;
 };
 
 export default function DragDropImageBox({
@@ -30,6 +34,8 @@ export default function DragDropImageBox({
   maxSizeMB = 10,
   className = "",
   initialFiles = [],
+  apiUrl,
+  onResult,
 }: DragDropImageBoxProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -41,6 +47,9 @@ export default function DragDropImageBox({
       url: string; // object URL
     }[]
   >([]);
+
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
 
   // bootstrap with initial files (no URLs available -> create them)
   useEffect(() => {
@@ -202,6 +211,53 @@ export default function DragDropImageBox({
     drag: { scale: 1.02, boxShadow: "0 10px 30px 0 rgba(0,0,0,0.08)" },
   } as const;
 
+  const handlePredict = useCallback(async () => {
+    if (items.length == 0) {
+      setErrors(["No image to classify"]);
+      return;
+    }
+
+    setErrors([]);
+    setLoading(true);
+    setResult(null);
+
+    const file = items[0].file;
+    const fd = new FormData();
+    fd.append("image", file);
+
+    const envBase =
+      typeof process !== "undefined" &&
+      process.env &&
+      process.env.NEXT_PUBLIC_API_URL
+        ? process.env.NEXT_PUBLIC_API_URL
+        : "";
+
+    const endpoint =
+      apiUrl?.replace(/\/+$/, "") ||
+      (envBase ? `${envBase.replace(/\/+$/, "")}/api/predict` : "/api/predict");
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        body: fd,
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        const err = json?.error || res.statusText || "Server error";
+        throw new Error(err);
+      }
+
+      setResult(json);
+      onResult?.(json);
+    } catch (e: any) {
+      setErrors([e?.message || "Failed to contact and connect to server."]);
+    } finally {
+      setLoading(false);
+    }
+  }, [apiUrl, items, onResult]);
+
   return (
     <div className={"w-full " + className}>
       {/* Invisible native input */}
@@ -317,9 +373,62 @@ export default function DragDropImageBox({
         ))}
       </div>
 
+      <div className="mt-4 items-center">
+        {items.length > 0 && (
+          <div className="flex gap-1">
+            <button
+              onClick={handlePredict}
+              disabled={loading}
+              type="button"
+              className="bg-indigo-600 text-white text-sm px-4 py-2 rounded disabled:opacity-60"
+            >
+              {loading ? "Classifying..." : "Classify Image"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                // clear all
+                items.forEach((it) => URL.revokeObjectURL(it.url));
+                setItems([]);
+                setErrors([]);
+                setResult(null);
+                onFiles?.([]);
+              }}
+              className="text-sm text-white bg-red-600 px-4 py-2 rounded"
+            >
+              Clear
+            </button>
+          </div>
+        )}
+      </div>
+
+      {result && (
+        <div>
+          <div>
+            <div>
+              <div className="text-sm text-zinc-500">Prediction</div>
+              <div className="font-semibold">
+                {result.prediction ??
+                  (result.pred == 1 ? "Smiski" : "Non-Smiski")}
+              </div>
+
+              <div className="text-xs text-zinc-600">
+                Confidence:{" "}
+                {typeof result.confidence === "number"
+                  ? `${(result.confidence * 100).toFixed(1)}%`
+                  : result.probabilities
+                  ? `${(result.probabilities.smiski * 100).toFixed(1)}%`
+                  : ""}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Helper text */}
       <p className="mt-3 text-xs text-zinc-500">
-        Accepted: {accept.join(", ") || "any"}. Tip: Ctrl/Cmd + V to open the browser file dialog. 
+        Accepted: {accept.join(", ") || "any"}. Tip: Ctrl/Cmd + V to open the
+        browser file dialog.
       </p>
     </div>
   );
