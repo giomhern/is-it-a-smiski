@@ -231,10 +231,11 @@ export default function DragDropImageBox({
       process.env.NEXT_PUBLIC_API_URL
         ? process.env.NEXT_PUBLIC_API_URL
         : "";
-
     const endpoint =
-      apiUrl?.replace(/\/+$/, "") ||
+      (apiUrl && apiUrl.replace(/\/+$/, "")) ||
       (envBase ? `${envBase.replace(/\/+$/, "")}/api/predict` : "/api/predict");
+
+    console.log("DragDropImageBox: predict endpoint ->", endpoint);
 
     try {
       const res = await fetch(endpoint, {
@@ -402,16 +403,16 @@ export default function DragDropImageBox({
         )}
       </div>
 
+      {/* Prediction result */}
       {result && (
-        <div>
-          <div>
+        <div className="mt-4 p-3 rounded-lg bg-zinc-100/30 border border-zinc-300">
+          <div className="flex items-center justify-between">
             <div>
               <div className="text-sm text-zinc-500">Prediction</div>
               <div className="font-semibold">
                 {result.prediction ??
-                  (result.pred == 1 ? "Smiski" : "Non-Smiski")}
+                  (result.pred === 1 ? "Smiski" : "Non-Smiski")}
               </div>
-
               <div className="text-xs text-zinc-600">
                 Confidence:{" "}
                 {typeof result.confidence === "number"

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Smiski?",
+  title: "Is it a Smiski?",
   description: "Created By a Smiski Collector",
 };
 
