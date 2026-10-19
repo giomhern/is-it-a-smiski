@@ -107,6 +107,18 @@ export async function requestPrediction(
       throw new Error(
         "The server is unavailable. Please try again in a moment.",
       );
+    if (response.status === 400) {
+      const payload: unknown = await response.json().catch(() => null);
+      signal.throwIfAborted();
+      if (
+        isRecord(payload) &&
+        typeof payload.error === "string" &&
+        payload.error.length > 0 &&
+        payload.error.length <= 200
+      ) {
+        throw new Error(payload.error);
+      }
+    }
     throw new Error(
       "Could not classify that photo. Please try a different image.",
     );

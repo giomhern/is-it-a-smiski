@@ -159,3 +159,27 @@ test("a timeout stays distinguishable from an offline error for the retry UI", a
     { name: "TimeoutError" },
   );
 });
+
+test("shows validated upload errors and handles non-JSON error responses", async () => {
+  await assert.rejects(
+    requestPrediction(photo, {
+      endpoint,
+      signal: new AbortController().signal,
+      fetcher: async () =>
+        Response.json(
+          { error: "Choose a photo under 40 megapixels" },
+          { status: 400 },
+        ),
+    }),
+    /40 megapixels/,
+  );
+  await assert.rejects(
+    requestPrediction(photo, {
+      endpoint,
+      signal: new AbortController().signal,
+      fetcher: async () =>
+        new Response("<html>Bad request</html>", { status: 400 }),
+    }),
+    /Could not classify/,
+  );
+});

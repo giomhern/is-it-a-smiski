@@ -2,10 +2,14 @@ import os
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 
 from backend.config import get_model_path
 from backend.transfer.main import SmiskiClassifier
+
+MAX_IMAGE_BYTES = 10 * 1024 * 1024
+MAX_IMAGE_PIXELS = 40_000_000
+ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
@@ -24,28 +28,42 @@ clf.load(get_model_path())
 def predict():
     if "image" not in request.files:
         return jsonify({"error": "No image provided"}), 400
+    if len(request.files.getlist("image")) != 1:
+        return jsonify({"error": "Please upload one photo at a time"}), 400
     file = request.files["image"]
     if not file.filename:
         return jsonify({"error": "No file selected"}), 400
     try:
-        # Decode directly from the request: no shared temporary filenames or cleanup.
+        file.stream.seek(0, os.SEEK_END)
+        size = file.stream.tell()
+        file.stream.seek(0)
+        if size > MAX_IMAGE_BYTES:
+            return jsonify({"error": "Choose a photo under 10 MB"}), 413
         with Image.open(file.stream) as image:
-            result = clf.predict(image.convert("RGB"))
-        return jsonify(
-            {
-                "prediction": "Smiski" if result["pred"] == 1 else "Non-Smiski",
-                "confidence": float(result["probs"][result["pred"]]),
-                "probabilities": {
-                    "smiski": float(result["probs"][1]),
-                    "non_smiski": float(result["probs"][0]),
-                },
-            }
-        )
-    except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
+            if image.format not in ALLOWED_FORMATS:
+                return jsonify({"error": "Choose a JPG, PNG, or WebP photo"}), 400
+            if image.width * image.height > MAX_IMAGE_PIXELS:
+                return jsonify({"error": "Choose a photo under 40 megapixels"}), 400
+            decoded = image.convert("RGB")
+    except (OSError, ValueError, Image.DecompressionBombError):
         return jsonify({"error": "Please upload a valid image"}), 400
+
+    try:
+        with decoded:
+            result = clf.predict(decoded)
     except Exception:
         app.logger.exception("Prediction failed")
         return jsonify({"error": "Unable to classify this image"}), 500
+    return jsonify(
+        {
+            "prediction": "Smiski" if result["pred"] == 1 else "Non-Smiski",
+            "confidence": float(result["probs"][result["pred"]]),
+            "probabilities": {
+                "smiski": float(result["probs"][1]),
+                "non_smiski": float(result["probs"][0]),
+            },
+        }
+    )
 
 
 @app.errorhandler(413)

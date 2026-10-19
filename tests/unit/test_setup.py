@@ -10,6 +10,8 @@ from pathlib import Path
 from threading import Thread
 from unittest.mock import patch
 
+from PIL import Image
+
 from backend.config import ROOT_DIR, get_model_path
 from backend.helpers.dataset import default_data_dir
 from scripts.install_model import install_model
@@ -124,6 +126,67 @@ class ApiSmokeTests(unittest.TestCase):
             "/api/predict", data={"image": (io.BytesIO(b"not an image"), "fake.jpg")}
         )
         self.assertEqual(response.status_code, 400)
+
+    def test_rejects_multiple_photos(self):
+        response = self.client.post(
+            "/api/predict",
+            data={
+                "image": [
+                    (io.BytesIO(b"first"), "first.jpg"),
+                    (io.BytesIO(b"second"), "second.jpg"),
+                ]
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("one photo", response.json["error"])
+
+    def test_rejects_unsupported_format_despite_jpeg_filename(self):
+        data = io.BytesIO()
+        Image.new("RGB", (8, 8)).save(data, format="GIF")
+        data.seek(0)
+        response = self.client.post(
+            "/api/predict", data={"image": (data, "disguised.jpg")}
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("JPG, PNG, or WebP", response.json["error"])
+
+    def test_rejects_photo_above_documented_size_limit(self):
+        from backend.api.app import MAX_IMAGE_BYTES
+
+        response = self.client.post(
+            "/api/predict",
+            data={"image": (io.BytesIO(b"x" * (MAX_IMAGE_BYTES + 1)), "large.jpg")},
+        )
+        self.assertEqual(response.status_code, 413)
+        self.assertIn("10 MB", response.json["error"])
+
+    def test_rejects_excessive_dimensions_before_decoding(self):
+        with patch("backend.api.app.Image.open") as open_image:
+            image = open_image.return_value.__enter__.return_value
+            image.format = "JPEG"
+            image.width, image.height = 8_000, 6_000
+            response = self.client.post(
+                "/api/predict", data={"image": (io.BytesIO(b"fixture"), "large.jpg")}
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertIn("40 megapixels", response.json["error"])
+            image.convert.assert_not_called()
+
+    def test_inference_errors_return_generic_server_error(self):
+        from backend.api.app import app
+
+        with (
+            patch(
+                "backend.api.app.clf.predict", side_effect=OSError("internal detail")
+            ),
+            patch.object(app.logger, "exception"),
+            (ROOT_DIR / "tests/smiski/test-smiski.jpeg").open("rb") as image,
+        ):
+            response = self.client.post(
+                "/api/predict", data={"image": (image, "smiski.jpg")}
+            )
+        self.assertEqual(response.status_code, 500)
+        self.assertNotIn("internal detail", response.get_data(as_text=True))
 
     def test_real_predictions_have_valid_response(self):
         for fixture in ("smiski/test-smiski.jpeg", "non-smiski/test-sonny-angel.jpg"):

@@ -106,7 +106,7 @@ curl -f -F image=@tests/smiski/test-smiski.jpeg http://localhost:5050/api/predic
 uv run --locked python -m scripts.test_model --image_path tests/smiski/test-smiski.jpeg
 ```
 
-`POST /api/predict` expects multipart form data named `image` and returns:
+`POST /api/predict` expects one multipart image named `image`: JPG, PNG, or WebP, up to 10 MB and 40 megapixels. These limits are enforced by the API. It returns:
 
 ```json
 {

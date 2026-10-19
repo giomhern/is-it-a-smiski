@@ -17,7 +17,7 @@ if __name__ == "__main__":
     result = clf.predict(image_path)
 
     print(f"Prediction: {'Smiski' if result['pred'] == 1 else 'Non-Smiski'}")
-    print(f"Confidence: {result['probs'][result['pred']]:.2%}")
+    print(f"Model score: {result['probs'][result['pred']]:.2%}")
     print(
-        f"Probabilities: Smiski={result['probs'][1]:.2%}, Non-Smiski={result['probs'][0]:.2%}"
+        f"Scores: Smiski={result['probs'][1]:.2%}, Non-Smiski={result['probs'][0]:.2%}"
     )
