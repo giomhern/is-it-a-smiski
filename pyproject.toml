@@ -1,0 +1,33 @@
+[project]
+name = "is-it-a-smiski"
+version = "0.1.0"
+description = "A Flask API and ResNet50 classifier for Smiski photos"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "flask==3.1.2",
+    "flask-cors==6.0.1",
+    "gunicorn==23.0.0",
+    "pillow==11.3.0",
+    "python-dotenv==1.1.1",
+    "torch==2.5.1",
+    "torchvision==0.20.1",
+]
+
+[project.optional-dependencies]
+training = [
+    "aiohttp==3.12.15",
+    "scikit-learn==1.7.2",
+]
+
+[tool.uv]
+package = false
+
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+include = ["backend*", "scripts*"]

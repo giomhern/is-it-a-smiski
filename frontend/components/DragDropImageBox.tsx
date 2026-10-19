@@ -6,7 +6,13 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
+
+export type PredictionResult = {
+  prediction: "Smiski" | "Non-Smiski";
+  confidence: number;
+  probabilities: { smiski: number; non_smiski: number };
+};
 
 export type DragDropImageBoxProps = {
   /** Callback when files pass validation */
@@ -24,7 +30,7 @@ export type DragDropImageBoxProps = {
   /** Optional API URL (defaults to NEXT_PUBLIC_API_URL + /api/predict or relative /api/predict) */
   apiUrl?: string;
   /** Optional callback with server result */
-  onResult?: (result: any) => void;
+  onResult?: (result: PredictionResult) => void;
 };
 
 export default function DragDropImageBox({
@@ -49,7 +55,7 @@ export default function DragDropImageBox({
   >([]);
 
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any | null>(null);
+  const [result, setResult] = useState<PredictionResult | null>(null);
 
   // bootstrap with initial files (no URLs available -> create them)
   useEffect(() => {
@@ -252,8 +258,8 @@ export default function DragDropImageBox({
 
       setResult(json);
       onResult?.(json);
-    } catch (e: any) {
-      setErrors([e?.message || "Failed to contact and connect to server."]);
+    } catch (e: unknown) {
+      setErrors([e instanceof Error ? e.message : "Failed to contact the server."]);
     } finally {
       setLoading(false);
     }
@@ -410,8 +416,7 @@ export default function DragDropImageBox({
             <div>
               <div className="text-sm text-zinc-500">Prediction</div>
               <div className="font-semibold">
-                {result.prediction ??
-                  (result.pred === 1 ? "Smiski" : "Non-Smiski")}
+                {result.prediction}
               </div>
               <div className="text-xs text-zinc-600">
                 Confidence:{" "}

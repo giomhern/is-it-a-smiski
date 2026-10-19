@@ -1,0 +1,7 @@
+{
+  "version": "initial-resnet50",
+  "filename": "smiski_classifier.pt",
+  "sha256": "3c9f5bd691a3b66b139dcde2518d8a09c65a74a7deb664cc355f0eaca22db376",
+  "url": null,
+  "labels": {"0": "Non-Smiski", "1": "Smiski"}
+}

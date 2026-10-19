@@ -1,5 +1,4 @@
 import torch
-import torchvision 
 import torch.nn as nn 
 import torch.optim as optim 
 import torchvision.transforms as transforms 
@@ -7,13 +6,10 @@ from torchvision import models
 from torchvision.models import ResNet50_Weights
 from torch.utils.data import DataLoader, Dataset 
 from PIL import Image 
-import os 
 from pathlib import Path
-from sklearn.model_selection import train_test_split
-import json 
-from ..helpers.load_data import load_data
+from backend.helpers.load_data import load_data
+from backend.config import get_model_path
 
-DATA_DIR = "data/raw"
 BATCH_SIZE = 32
 EPOCHS = 10 
 LEARNING_RATE = 0.001
@@ -59,6 +55,7 @@ class SmiskiClassifier:
     def __init__(self, device=DEVICE, model_name="resnet50", pretrained=True, lr=LEARNING_RATE, batch_size=BATCH_SIZE):
         self.device = device
         self.model_name = model_name
+        self.pretrained = pretrained
         self.lr = lr 
         self.batch_size = batch_size
         
@@ -66,9 +63,10 @@ class SmiskiClassifier:
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = None 
 
-    def build_model(self, num_classes=2, freeze_early=True):
+    def build_model(self, num_classes=2, freeze_early=True, pretrained=None):
         if self.model_name == "resnet50":
-            self.model = models.resnet50(weights=ResNet50_Weights.DEFAULT)
+            use_pretrained = self.pretrained if pretrained is None else pretrained
+            self.model = models.resnet50(weights=ResNet50_Weights.DEFAULT if use_pretrained else None)
         else:
             raise ValueError("Unsupported model name.")
 
@@ -82,6 +80,8 @@ class SmiskiClassifier:
         self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.model.parameters()), lr=self.lr)
 
     def prepare_data(self, image_paths, labels, val_split=0.2, shuffle=True, random_state=42):
+        from sklearn.model_selection import train_test_split
+
         train_paths, val_paths, train_labels, val_labels = train_test_split(
             image_paths, labels, test_size=val_split, shuffle=shuffle, random_state=random_state
         )
@@ -138,11 +138,19 @@ class SmiskiClassifier:
             val_loss, val_acc = self._validate_epoch()
             print(f"Epoch {epoch+1}/{epochs}  Train Loss: {train_loss:.4f} Acc: {train_acc:.4f}  Val Loss: {val_loss:.4f} Acc: {val_acc:.4f}")
     
-    def save(self, path="smiski_classifier.pt"):
+    def save(self, path=None):
+        path = Path(path) if path else get_model_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
         torch.save(self.model.state_dict(), path)
 
     def load(self, path, num_classes=2, freeze_early=True):
-        self.build_model(num_classes=num_classes, freeze_early=freeze_early)
+        path = Path(path)
+        if not path.is_file():
+            raise FileNotFoundError(
+                f"Model checkpoint missing: {path}. "
+                "See README.md or run python -m scripts.install_model --help."
+            )
+        self.build_model(num_classes=num_classes, freeze_early=freeze_early, pretrained=False)
         self.model.load_state_dict(torch.load(path, map_location=self.device, weights_only=True))
 
     def predict(self, img):
@@ -163,12 +171,4 @@ if __name__ == "__main__":
     clf.build_model()
     clf.prepare_data(image_paths, labels)
     clf.train()
-    clf.save("smiski_classifier.pt")
-
-
-
-
-    
-
-
-
+    clf.save()

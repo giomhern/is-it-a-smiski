@@ -1,9 +1,15 @@
 from pathlib import Path
 import json
+import os
 
-DATA_DIR = "/Users/giomhern/04 Projects/is-it-a-smiski/data/raw"
+from backend.config import ROOT_DIR
 
-def load_data():
+DATA_DIR = ROOT_DIR / "data" / "raw"
+
+def load_data(data_dir=None):
+    data_dir = Path(data_dir or os.getenv("DATA_DIR") or DATA_DIR).expanduser()
+    if not data_dir.is_absolute():
+        data_dir = ROOT_DIR / data_dir
     image_paths = []
     labels = []
 
@@ -35,7 +41,7 @@ def load_data():
         return None
 
     for class_name, label_value in (("smiski", 1), ("non_smiski", 0)):
-        class_dir = Path(DATA_DIR) / class_name
+        class_dir = data_dir / class_name
         manifest_path = class_dir / "download_manifest.jsonl"
 
         if manifest_path.exists() and manifest_path.stat().st_size > 0:
