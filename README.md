@@ -1,6 +1,8 @@
 # Is It a Smiski?
 
-Upload a photo for a Smiski / Non-Smiski prediction. A small collector's project built with Next.js, Flask, and PyTorch ResNet50. Uploaded photos stay in memory.
+A collector's take on computer vision. Upload a photo or try an example to see whether a ResNet50 model recognizes a Smiski.
+
+Built with **Next.js**, **Flask**, and **PyTorch**, with a simple interface that keeps the focus on your photo. Images are processed in memory and never saved.
 
 ![Smiski photo classifier](docs/screenshots/app.jpg)
 
