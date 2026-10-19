@@ -29,7 +29,7 @@ test -f frontend/.env.local || cp frontend/.env.example frontend/.env.local
 uv run --locked python -m scripts.install_model
 ```
 
-These commands keep existing environment files. The installer downloads about 90 MB of checksum-verified weights from the [model release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1). No training data or Flickr credentials are needed to run the app.
+These commands keep existing environment files. The installer downloads about 90 MB of checksum-verified weights from the [model release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1). No training data or Flickr credentials are needed to run the app. Linux installs use CPU-only PyTorch automatically through `uv`; no CUDA setup is needed.
 
 ### 2. Start the API — terminal 1
 
