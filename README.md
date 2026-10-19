@@ -93,6 +93,23 @@ curl --fail --location --output data/splits/split-v1.json \
 
 Historical reports and baseline metadata are archived with the [model release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1).
 
+## Deploy on Render
+
+Create both services from this repository's `main` branch:
+
+| Setting | Backend (Web Service) | Frontend (Static Site) |
+| --- | --- | --- |
+| Runtime | Docker | Static |
+| Root directory | Repository root | `frontend` |
+| Plan | Free | Free |
+| Build command | Dockerfile | `npm ci && npm run build` |
+| Publish directory | — | `out` |
+| Health check | `/health` | — |
+
+Deploy the backend first. Set the frontend's `NEXT_PUBLIC_API_URL` to its HTTPS URL before building. Set the backend's `ALLOWED_ORIGINS` to the frontend's exact HTTPS origin, without a trailing slash. Rebuild the frontend after changing its API URL.
+
+The free backend sleeps after 15 minutes without traffic, so the first prediction may take a minute. Static hosting keeps the frontend available while it wakes up. Both services share Render's included bandwidth and build limits.
+
 ## Docker backend
 
 The image exports the verified checkpoint during its build and serves it without PyTorch. The model is preloaded once; each request gets a fresh worker so large upload buffers are reclaimed.

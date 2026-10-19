@@ -123,7 +123,7 @@ export default function DragDropImageBox() {
     request.current = controller;
     const signal = AbortSignal.any([
       controller.signal,
-      AbortSignal.timeout(45_000),
+      AbortSignal.timeout(180_000),
     ]);
     setPhase("predicting");
     try {
@@ -206,7 +206,10 @@ export default function DragDropImageBox() {
       <div role="status" aria-live="polite" aria-atomic="true">
         {phase === "preparing" && <p className="feedback">Opening photo…</p>}
         {phase === "predicting" && (
-          <p className="feedback">Classifying photo…</p>
+          <p className="feedback">
+            Classifying photo… The first request may take a minute while the
+            server wakes up.
+          </p>
         )}
         {result && (
           <div className="result">
