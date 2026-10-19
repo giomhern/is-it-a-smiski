@@ -2,11 +2,13 @@
 
 A collector's take on computer vision. Upload a photo or try an example to see whether a ResNet50 model recognizes a Smiski.
 
-Built with **Next.js**, **Flask**, and **PyTorch**, with a simple interface that keeps the focus on your photo. Images are processed in memory and never saved.
+Built with **Next.js** and **Flask**, using **PyTorch** for training/export and **ONNX Runtime** for CPU inference. Images are processed in memory and never saved.
 
 **[Try the live app](https://is-it-a-smiski.onrender.com)** · Hosted on Render's free tier; the first prediction may take a minute while the API wakes up.
 
 ![Smiski photo classifier](docs/screenshots/app.jpg)
+
+Drag and drop a JPG, PNG, or WebP, or try the bundled Smiski and Sonny Angel examples. See the prediction and model score, then replace or clear the photo. The static frontend and Docker API run on Render's free hosting.
 
 ## Run locally
 
@@ -101,6 +103,7 @@ Create both services from this repository's `main` branch:
 
 | Setting | Backend (Web Service) | Frontend (Static Site) |
 | --- | --- | --- |
+| Live URL | [API](https://is-it-a-smiski-api.onrender.com/health) | [App](https://is-it-a-smiski.onrender.com) |
 | Runtime | Docker | Static |
 | Root directory | Repository root | `frontend` |
 | Plan | Free | Free |
@@ -109,6 +112,8 @@ Create both services from this repository's `main` branch:
 | Health check | `/health` | — |
 
 Deploy the backend first. Set the frontend's `NEXT_PUBLIC_API_URL` to its HTTPS URL before building. Set the backend's `ALLOWED_ORIGINS` to the frontend's exact HTTPS origin, without a trailing slash. Rebuild the frontend after changing its API URL.
+
+Current values: `NEXT_PUBLIC_API_URL=https://is-it-a-smiski-api.onrender.com` and `ALLOWED_ORIGINS=https://is-it-a-smiski.onrender.com`.
 
 The free backend sleeps after 15 minutes without traffic, so the first prediction may take a minute. Static hosting keeps the frontend available while it wakes up. Both services share Render's included bandwidth and build limits.
 
