@@ -6,7 +6,7 @@ A small machine learning web app by a Smiski collector. Upload a photo to get a 
 
 ![The simple Smiski photo upload screen](docs/screenshots/app.jpg)
 
-Coding, design, verification, and commit standards are in [AGENTS.md](AGENTS.md).
+Coding, design, verification, and commit standards are in [AGENTS.md](AGENTS.md). The [code audit](docs/CODE_AUDIT.md) records cleanup, verification, and remaining work.
 
 ## Architecture
 
@@ -57,7 +57,7 @@ uv sync --locked
 cp .env.example .env
 ```
 
-Keep an existing `.env` if you already have one. Real environment variables take precedence over `.env`. The training dependencies are optional: `uv sync --locked --extra training`.
+Keep an existing `.env` if you already have one. Real environment variables take precedence over `.env`. Dataset collection dependencies are optional: `uv sync --locked --extra training`.
 
 ### 2. Install the checkpoint
 
