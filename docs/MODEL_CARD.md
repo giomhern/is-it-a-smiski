@@ -1,6 +1,6 @@
 # Model card
 
-A photo-classification demo, not an authenticity checker. Both checkpoints use ResNet50 with labels `0 = Non-Smiski`, `1 = Smiski`. Preprocessing corrects EXIF orientation, converts to RGB, resizes to 224×224, and applies ImageNet normalization. Scores are uncalibrated.
+A photo-classification demo, not an authenticity checker. Both checkpoints use ResNet50 with labels `0 = Non-Smiski`, `1 = Smiski`. Preprocessing corrects EXIF orientation, converts to RGB, resizes to 224×224, and applies ImageNet normalization. Scores are uncalibrated. The CPU API serves an ONNX export of the same weights; PyTorch is used for training and historical evaluation.
 
 - **Default model:** original checkpoint with unknown training history. Its evaluation cannot establish held-out accuracy.
 - **Baseline v1:** frozen ImageNet V2 backbone, class-balanced linear head, seed 42; epoch 44 selected from 100 by validation loss. The duplicate-grouped dataset contains 681 training, 146 validation, and 146 test photos.

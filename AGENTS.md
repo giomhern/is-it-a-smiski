@@ -17,6 +17,7 @@
 - Use strict TypeScript. Validate unknown data at external boundaries; do not use `any` or unchecked casts to silence errors.
 - Use Prettier defaults for TypeScript/React/CSS and Ruff formatting/import sorting for Python; use maintenance tools without adding runtime dependencies.
 - Follow PEP 8 in Python. Keep training-only work and optimizer initialization out of API startup and inference.
+- Keep the API free of PyTorch imports; use the verified ONNX export for serving and the training extra for export/training/evaluation.
 - Keep validation/inference preprocessing shared and deterministic. Do not alter checkpoint architecture, class ordering, preprocessing, or recorded model provenance as incidental cleanup.
 - Keep useful test fixtures and checksum manifests in Git. Store generated dataset snapshots, per-image reports, and training metadata under ignored `data/` or in release assets; preserve historical provenance without duplicating artifacts in source.
 - Keep dependencies declared in `pyproject.toml` and `frontend/package.json`; commit `uv.lock` and `frontend/package-lock.json`. Use Python 3.11 and Node 22.
@@ -36,8 +37,8 @@
 Run checks relevant to the change, using the locked project environment:
 
 ```sh
-# Backend changes; inference tests require the downloaded checkpoint.
-uv run --locked python -m unittest discover -s tests/unit -v
+# Backend changes; inference tests require the downloaded checkpoint and its export.
+uv run --locked --extra training python -m unittest discover -s tests/unit -v
 
 # Frontend changes, from frontend/.
 npm run lint
@@ -46,6 +47,7 @@ npm test
 npm run build
 ```
 
+- For inference or image-processing changes, build the Docker image and run `uv run --locked python -m scripts.check_memory` to check the 512 MiB limit with no swap and 0.1 CPU.
 - Add regression tests for meaningful behavior and bugs, not implementation details or trivial cosmetic changes.
 - For UI changes, verify the real upload/example, prediction, replacement/clear, failure/retry, keyboard, and mobile paths where applicable. Never claim a browser check passed if it was blocked or not performed.
 - Before removing code, search for its callers and update affected tests/docs. Keep tests aimed at the active production or training path rather than preserving obsolete code solely for its tests.

@@ -5,10 +5,13 @@ from flask_cors import CORS
 from PIL import Image
 
 from backend.config import get_model_path
-from backend.transfer.main import SmiskiClassifier
+from backend.helpers.uploads import webp_pixels
+from backend.inference import SmiskiPredictor
 
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 MAX_IMAGE_PIXELS = 40_000_000
+MAX_WEBP_PIXELS = 16_000_000
+MAX_IMAGE_DIMENSION = 16_384
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 app = Flask(__name__)
@@ -20,8 +23,7 @@ allowed_origins = [
 ]
 CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
-clf = SmiskiClassifier()
-clf.load(get_model_path())
+clf = SmiskiPredictor(get_model_path())
 
 
 @app.route("/api/predict", methods=["POST"])
@@ -39,11 +41,22 @@ def predict():
         file.stream.seek(0)
         if size > MAX_IMAGE_BYTES:
             return jsonify({"error": "Choose a photo under 10 MB"}), 413
+        pixels = webp_pixels(file.stream, size)
+        if pixels is not None and pixels > MAX_WEBP_PIXELS:
+            return jsonify({"error": "Choose a WebP photo under 16 megapixels"}), 400
         with Image.open(file.stream) as image:
             if image.format not in ALLOWED_FORMATS:
                 return jsonify({"error": "Choose a JPG, PNG, or WebP photo"}), 400
+            if max(image.size) > MAX_IMAGE_DIMENSION:
+                return jsonify(
+                    {"error": "Choose a photo under 16,384 pixels per side"}
+                ), 400
             if image.width * image.height > MAX_IMAGE_PIXELS:
                 return jsonify({"error": "Choose a photo under 40 megapixels"}), 400
+            if image.format == "WEBP" and image.width * image.height > MAX_WEBP_PIXELS:
+                return jsonify(
+                    {"error": "Choose a WebP photo under 16 megapixels"}
+                ), 400
             image.load()
             try:
                 result = clf.predict(image)

@@ -2,6 +2,8 @@ import hashlib
 import io
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 from functools import partial
@@ -58,6 +60,29 @@ class SetupTests(unittest.TestCase):
 
         with self.assertRaisesRegex(FileNotFoundError, "scripts.install_model"):
             SmiskiClassifier().load(ROOT_DIR / "missing-test-checkpoint.pt")
+
+    def test_api_starts_without_importing_training_framework(self):
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                "import sys; import backend.api.app; assert 'torch' not in sys.modules; assert 'torchvision' not in sys.modules",
+            ],
+            cwd=ROOT_DIR,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_export_must_match_the_source_checkpoint(self):
+        from backend.inference import SmiskiPredictor
+
+        with (
+            patch("backend.inference.file_sha256", return_value="changed checkpoint"),
+            self.assertRaisesRegex(ValueError, "does not match"),
+        ):
+            SmiskiPredictor(get_model_path())
 
     def test_alternative_manifest_install_has_an_explicit_destination(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -165,6 +190,7 @@ class ApiSmokeTests(unittest.TestCase):
             image = open_image.return_value.__enter__.return_value
             image.format = "JPEG"
             image.width, image.height = 8_000, 6_000
+            image.size = (image.width, image.height)
             response = self.client.post(
                 "/api/predict", data={"image": (io.BytesIO(b"fixture"), "large.jpg")}
             )
@@ -181,6 +207,75 @@ class ApiSmokeTests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn("valid image", response.json["error"])
+
+    def test_extreme_aspect_ratios_are_rejected_before_decoding(self):
+        with patch("backend.api.app.Image.open") as open_image:
+            image = open_image.return_value.__enter__.return_value
+            image.format = "PNG"
+            image.size = (1, 40_000_000)
+            response = self.client.post(
+                "/api/predict", data={"image": (io.BytesIO(b"fixture"), "tall.png")}
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertIn("16,384 pixels per side", response.json["error"])
+            image.load.assert_not_called()
+
+    def test_webp_limit_is_checked_before_allocating_decoder_buffers(self):
+        data = (
+            b"RIFF"
+            + (22).to_bytes(4, "little")
+            + b"WEBPVP8X"
+            + (10).to_bytes(4, "little")
+        )
+        data += bytes(4) + (7999).to_bytes(3, "little") + (4999).to_bytes(3, "little")
+        with patch("backend.api.app.Image.open") as open_image:
+            response = self.client.post(
+                "/api/predict", data={"image": (io.BytesIO(data), "large.webp")}
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertIn("WebP photo under 16 megapixels", response.json["error"])
+            open_image.assert_not_called()
+
+    def test_invalid_webp_chunks_are_rejected_before_decoding(self):
+        prefix = b"RIFF" + bytes(4) + b"WEBP"
+        for payload in (prefix, prefix + b"VP8X" + (1000).to_bytes(4, "little")):
+            with patch("backend.api.app.Image.open") as open_image:
+                response = self.client.post(
+                    "/api/predict", data={"image": (io.BytesIO(payload), "broken.webp")}
+                )
+                self.assertEqual(response.status_code, 400)
+                open_image.assert_not_called()
+
+    def test_webp_dimensions_match_pillow_for_supported_chunk_types(self):
+        from backend.helpers.uploads import webp_pixels
+
+        for mode, lossless, extended in (
+            ("RGB", False, False),
+            ("RGB", True, False),
+            ("RGBA", True, False),
+            ("RGBA", False, True),
+        ):
+            with (
+                self.subTest(mode=mode, lossless=lossless, extended=extended),
+                io.BytesIO() as data,
+            ):
+                image = Image.new(mode, (37, 29))
+                exif = image.getexif()
+                exif[274] = 1
+                image.save(
+                    data,
+                    format="WEBP",
+                    lossless=lossless,
+                    exif=exif if extended else b"",
+                )
+                size = data.tell()
+                data.seek(0)
+                self.assertEqual(webp_pixels(data, size), 37 * 29)
+                self.assertEqual(data.tell(), 0)
+                response = self.client.post(
+                    "/api/predict", data={"image": (data, "photo.webp")}
+                )
+                self.assertEqual(response.status_code, 200)
 
     def test_inference_errors_return_generic_server_error(self):
         from backend.api.app import app

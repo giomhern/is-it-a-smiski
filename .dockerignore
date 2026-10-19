@@ -1,0 +1,16 @@
+.git
+.venv
+.env*
+.aws
+.agents
+.codex
+data
+frontend
+node_modules
+tests
+docs
+**/__pycache__
+**/*.pyc
+backend/models/*.pt
+backend/models/*.onnx*
+backend/models/*.metadata.json

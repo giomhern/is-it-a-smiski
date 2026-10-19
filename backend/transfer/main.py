@@ -3,11 +3,13 @@
 from pathlib import Path
 
 import torch
-from PIL import Image, ImageOps
+from PIL import Image
 from torch import nn
 from torch.utils.data import Dataset
-from torchvision import models, transforms
+from torchvision import models
 from torchvision.models import ResNet50_Weights
+
+from backend.helpers.preprocessing import preprocess_image
 
 DEVICE = torch.device(
     "cuda"
@@ -16,24 +18,6 @@ DEVICE = torch.device(
     if torch.backends.mps.is_available()
     else "cpu"
 )
-val_transforms = transforms.Compose(
-    [
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225],
-        ),
-    ]
-)
-
-
-def preprocess_image(image):
-    # Avoid full-resolution copies when the uploaded photo is already RGB.
-    ImageOps.exif_transpose(image, in_place=True)
-    if image.mode != "RGB":
-        image = image.convert("RGB")
-    return val_transforms(image)
 
 
 class SmiskiDataset(Dataset):
@@ -46,7 +30,7 @@ class SmiskiDataset(Dataset):
 
     def __getitem__(self, index):
         with Image.open(self.image_paths[index]) as image:
-            return preprocess_image(image), self.labels[index]
+            return torch.from_numpy(preprocess_image(image)), self.labels[index]
 
 
 class SmiskiClassifier:
@@ -87,7 +71,7 @@ class SmiskiClassifier:
         if isinstance(image, (str, Path)):
             with Image.open(image) as raw:
                 return self.predict(raw)
-        tensor = preprocess_image(image).unsqueeze(0).to(self.device)
+        tensor = torch.from_numpy(preprocess_image(image)).unsqueeze(0).to(self.device)
         self.model.eval()
         with torch.inference_mode():
             probabilities = self.model(tensor).softmax(1).cpu().numpy()[0]

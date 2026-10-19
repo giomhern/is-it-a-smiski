@@ -29,6 +29,8 @@ next-env.d.ts
 # Local training data and checkpoint binaries
 /data/
 backend/models/*.pt
+backend/models/*.onnx
+backend/models/*.onnx.*
 backend/models/*.metadata.json
 
 # Editor and OS files

@@ -27,9 +27,10 @@ npm --prefix frontend ci
 test -f .env || cp .env.example .env
 test -f frontend/.env.local || cp frontend/.env.example frontend/.env.local
 uv run --locked python -m scripts.install_model
+uv run --locked --extra training python -m scripts.export_model
 ```
 
-These commands keep existing environment files. The installer downloads about 90 MB of checksum-verified weights from the [model release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1). No training data or Flickr credentials are needed to run the app. Linux installs use CPU-only PyTorch automatically through `uv`; no CUDA setup is needed.
+These commands keep existing environment files. The installer downloads about 90 MB of checksum-verified weights from the [model release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1). No training data or Flickr credentials are needed to run the app. The one-time export uses CPU-only PyTorch on Linux; the API uses ONNX Runtime to fit small hosts.
 
 ### 2. Start the API — terminal 1
 
@@ -53,13 +54,13 @@ Open **http://localhost:3000**, choose an example or upload a photo, then click 
 
 ### If something does not work
 
-- **Model missing:** rerun `uv run --locked python -m scripts.install_model` from the repository root.
+- **Model missing:** repeat the install and export commands from step 1.
 - **Cannot reach the API:** check that it is running on port 5050 and `frontend/.env.local` contains `NEXT_PUBLIC_API_URL=http://localhost:5050`. Restart the frontend after editing it.
 - **Port already in use:** stop the existing process on 3000 or 5050. Use `localhost:3000` so the browser origin matches the default API configuration.
 
 ## API
 
-`GET /health` checks readiness. `POST /api/predict` accepts one multipart `image` (JPEG, PNG, or WebP; up to 10 MiB and 40 megapixels) and returns a prediction, confidence, and both class scores.
+`GET /health` checks readiness. `POST /api/predict` accepts one multipart `image` (JPEG, PNG, or WebP; up to 10 MiB; JPEG/PNG up to 40 megapixels, WebP up to 16 megapixels; each side up to 16,384 pixels) and returns a prediction, confidence, and both class scores.
 
 ```sh
 curl -f -F image=@tests/smiski/test-smiski.jpeg http://localhost:5050/api/predict
@@ -75,8 +76,8 @@ Training is optional and requires local photos in `data/raw/{smiski,non_smiski}/
 
 ```sh
 uv run --locked python -m scripts.prepare_dataset
-uv run --locked python -m scripts.train_model --output backend/models/my_model.pt
-uv run --locked python -m scripts.evaluate_model \
+uv run --locked --extra training python -m scripts.train_model --output backend/models/my_model.pt
+uv run --locked --extra training python -m scripts.evaluate_model \
   --checkpoint backend/models/my_model.pt --output data/evaluation/my_model.json
 ```
 
@@ -92,10 +93,25 @@ curl --fail --location --output data/splits/split-v1.json \
 
 Historical reports and baseline metadata are archived with the [model release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1).
 
+## Docker backend
+
+The image exports the verified checkpoint during its build and serves it without PyTorch. The model is preloaded once; each request gets a fresh worker so large upload buffers are reclaimed.
+
+```sh
+docker build --platform linux/amd64 -t is-it-a-smiski:local .
+docker run --rm -p 5050:5050 --memory 512m --memory-swap 512m is-it-a-smiski:local
+```
+
+Stop an existing local API before using port 5050. Run the constrained regression check with Docker open:
+
+```sh
+uv run --locked python -m scripts.check_memory
+```
+
 ## Checks
 
 ```sh
-uv run --locked python -m unittest discover -s tests/unit -v
+uv run --locked --extra training python -m unittest discover -s tests/unit -v
 cd frontend
 npm run lint
 npm run typecheck
@@ -103,6 +119,6 @@ npm test
 npm run build
 ```
 
-Inference tests require the installed checkpoint. Contribution and coding standards live in [AGENTS.md](AGENTS.md).
+Inference tests require the installed checkpoint and its export. Contribution and coding standards live in [AGENTS.md](AGENTS.md).
 
 Independent fan project; unaffiliated with [Smiski](https://smiski.com/e/smiski/).
