@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 
 import torch
-from PIL import Image
+from PIL import Image, ImageOps
 
 from backend.helpers.dataset import (
     build_snapshot,
@@ -16,7 +16,7 @@ from backend.helpers.dataset import (
     load_snapshot,
 )
 from backend.helpers.evaluation import calculate_metrics
-from backend.transfer.main import val_transforms
+from backend.transfer.main import preprocess_image, val_transforms
 from scripts.evaluate_model import evaluation_status
 from scripts.train_model import training_partitions
 
@@ -181,6 +181,18 @@ class EvaluationTests(unittest.TestCase):
         metadata["training_image_sha256"] = ["test"]
         with self.assertRaisesRegex(ValueError, "partitions"):
             evaluation_status("hash", snapshot, metadata, "test")
+
+    def test_preprocessing_preserves_color_conversion_and_exif_orientation(self):
+        pixels = random.Random(43).randbytes(64 * 32 * 3)
+        for mode in ("RGB", "RGBA", "L", "P"):
+            for orientation in range(1, 9):
+                with self.subTest(mode=mode, orientation=orientation):
+                    image = Image.frombytes("RGB", (64, 32), pixels).convert(mode)
+                    image.getexif()[274] = orientation
+                    expected = val_transforms(
+                        ImageOps.exif_transpose(image).convert("RGB")
+                    )
+                    self.assertTrue(torch.equal(preprocess_image(image), expected))
 
     def test_validation_transform_is_deterministic(self):
         image = Image.frombytes(

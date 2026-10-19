@@ -171,6 +171,16 @@ class ApiSmokeTests(unittest.TestCase):
             self.assertEqual(response.status_code, 400)
             self.assertIn("40 megapixels", response.json["error"])
             image.convert.assert_not_called()
+            image.load.assert_not_called()
+
+    def test_truncated_photo_returns_client_error(self):
+        payload = (ROOT_DIR / "tests/smiski/test-smiski.jpeg").read_bytes()
+        response = self.client.post(
+            "/api/predict",
+            data={"image": (io.BytesIO(payload[:-100]), "truncated.jpg")},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("valid image", response.json["error"])
 
     def test_inference_errors_return_generic_server_error(self):
         from backend.api.app import app

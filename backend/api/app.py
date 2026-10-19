@@ -44,16 +44,15 @@ def predict():
                 return jsonify({"error": "Choose a JPG, PNG, or WebP photo"}), 400
             if image.width * image.height > MAX_IMAGE_PIXELS:
                 return jsonify({"error": "Choose a photo under 40 megapixels"}), 400
-            decoded = image.convert("RGB")
+            image.load()
+            try:
+                result = clf.predict(image)
+            except Exception:
+                app.logger.exception("Prediction failed")
+                return jsonify({"error": "Unable to classify this image"}), 500
     except (OSError, ValueError, Image.DecompressionBombError):
         return jsonify({"error": "Please upload a valid image"}), 400
 
-    try:
-        with decoded:
-            result = clf.predict(decoded)
-    except Exception:
-        app.logger.exception("Prediction failed")
-        return jsonify({"error": "Unable to classify this image"}), 500
     return jsonify(
         {
             "prediction": "Smiski" if result["pred"] == 1 else "Non-Smiski",

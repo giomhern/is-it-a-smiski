@@ -28,6 +28,14 @@ val_transforms = transforms.Compose(
 )
 
 
+def preprocess_image(image):
+    # Avoid full-resolution copies when the uploaded photo is already RGB.
+    ImageOps.exif_transpose(image, in_place=True)
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+    return val_transforms(image)
+
+
 class SmiskiDataset(Dataset):
     def __init__(self, image_paths, labels):
         self.image_paths = image_paths
@@ -37,9 +45,8 @@ class SmiskiDataset(Dataset):
         return len(self.image_paths)
 
     def __getitem__(self, index):
-        with Image.open(self.image_paths[index]) as raw:
-            image = ImageOps.exif_transpose(raw).convert("RGB")
-        return val_transforms(image), self.labels[index]
+        with Image.open(self.image_paths[index]) as image:
+            return preprocess_image(image), self.labels[index]
 
 
 class SmiskiClassifier:
@@ -65,9 +72,13 @@ class SmiskiClassifier:
                 f"Model checkpoint missing: {path}. "
                 "Run python -m scripts.install_model to download it."
             )
-        self.build_model(pretrained=False)
-        state = torch.load(path, map_location=self.device, weights_only=True)
-        self.model.load_state_dict(state)
+        # Meta tensors skip random weights; mmap avoids a second checkpoint copy.
+        with torch.device("meta"):
+            self.model = models.resnet50(weights=None)
+            self.model.fc = nn.Linear(self.model.fc.in_features, 2)
+        state = torch.load(path, map_location="cpu", weights_only=True, mmap=True)
+        self.model.load_state_dict(state, assign=True)
+        self.model.to(self.device)
         self.model.eval()
 
     def predict(self, image):
@@ -75,10 +86,8 @@ class SmiskiClassifier:
             raise RuntimeError("Load or build a model before prediction")
         if isinstance(image, (str, Path)):
             with Image.open(image) as raw:
-                image = ImageOps.exif_transpose(raw).convert("RGB")
-        else:
-            image = ImageOps.exif_transpose(image).convert("RGB")
-        tensor = val_transforms(image).unsqueeze(0).to(self.device)
+                return self.predict(raw)
+        tensor = preprocess_image(image).unsqueeze(0).to(self.device)
         self.model.eval()
         with torch.inference_mode():
             probabilities = self.model(tensor).softmax(1).cpu().numpy()[0]
