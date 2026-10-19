@@ -4,11 +4,13 @@ A collector's take on computer vision. Upload a photo or try an example to see w
 
 Built with **Next.js**, **Flask**, and **PyTorch**, with a simple interface that keeps the focus on your photo. Images are processed in memory and never saved.
 
+**[Try the live app](https://is-it-a-smiski.onrender.com)** · Hosted on Render's free tier; the first prediction may take a minute while the API wakes up.
+
 ![Smiski photo classifier](docs/screenshots/app.jpg)
 
 ## Run locally
 
-The app is not deployed yet. Run the API and frontend in two terminals.
+Run the API and frontend in two terminals.
 
 ### 1. First-time setup
 
@@ -109,6 +111,8 @@ Create both services from this repository's `main` branch:
 Deploy the backend first. Set the frontend's `NEXT_PUBLIC_API_URL` to its HTTPS URL before building. Set the backend's `ALLOWED_ORIGINS` to the frontend's exact HTTPS origin, without a trailing slash. Rebuild the frontend after changing its API URL.
 
 The free backend sleeps after 15 minutes without traffic, so the first prediction may take a minute. Static hosting keeps the frontend available while it wakes up. Both services share Render's included bandwidth and build limits.
+
+The current services use the public repository connection. After pushing updates, use **Manual Deploy → Deploy latest commit** on the affected service in Render.
 
 ## Docker backend
 
