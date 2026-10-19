@@ -34,7 +34,9 @@ def image_signatures(path):
         pixels = hashlib.sha256(str(image.size).encode() + image.tobytes()).hexdigest()
         # 128-bit dHash: low Hamming distance flags candidate near-duplicates.
         small = list(
-            image.convert("L").resize((17, 8), Image.Resampling.LANCZOS).getdata()
+            image.convert("L")
+            .resize((17, 8), Image.Resampling.LANCZOS)
+            .get_flattened_data()
         )
         dhash = 0
         for y in range(8):
