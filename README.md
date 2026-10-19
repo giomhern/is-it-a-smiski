@@ -6,41 +6,62 @@ Upload a photo for a Smiski / Non-Smiski prediction. A small collector's project
 
 ## Run locally
 
-Requires Python 3.11, Node 22, npm, and [uv](https://docs.astral.sh/uv/getting-started/installation/). From the repository root:
+The app is not deployed yet. Run the API and frontend in two terminals.
+
+### 1. First-time setup
+
+Install **Python 3.11**, **Node.js 22** (includes npm), and [uv](https://docs.astral.sh/uv/getting-started/installation/), then clone the repository:
+
+```sh
+git clone https://github.com/giomhern/is-it-a-smiski.git
+cd is-it-a-smiski
+```
+
+If you already have the repository, open its root directory. Install dependencies and download the model:
 
 ```sh
 uv sync --locked
-cp .env.example .env
+npm --prefix frontend ci
+test -f .env || cp .env.example .env
+test -f frontend/.env.local || cp frontend/.env.example frontend/.env.local
 uv run --locked python -m scripts.install_model
+```
+
+These commands keep existing environment files. The installer downloads about 90 MB of checksum-verified weights from the [model release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1). No training data or Flickr credentials are needed to run the app.
+
+### 2. Start the API — terminal 1
+
+From the repository root:
+
+```sh
 uv run --locked python -m backend.api.app
 ```
 
-In another terminal:
+Leave it running at http://localhost:5050. Check readiness at http://localhost:5050/health; it should return `{"status":"ok"}`.
+
+### 3. Start the frontend — terminal 2
+
+From the repository root:
 
 ```sh
-cd frontend
-npm ci
-cp .env.example .env.local
-npm run dev
+npm --prefix frontend run dev
 ```
 
-Open http://localhost:3000. Keep existing environment files if already configured. The model installer downloads checksum-verified weights from the [model-v1 release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1).
+Open **http://localhost:3000**, choose an example or upload a photo, then click **Classify**. Keep both terminals running; press `Ctrl+C` in each to stop. On later runs, repeat only steps 2 and 3.
 
-## API and deployment
+### If something does not work
+
+- **Model missing:** rerun `uv run --locked python -m scripts.install_model` from the repository root.
+- **Cannot reach the API:** check that it is running on port 5050 and `frontend/.env.local` contains `NEXT_PUBLIC_API_URL=http://localhost:5050`. Restart the frontend after editing it.
+- **Port already in use:** stop the existing process on 3000 or 5050. Use `localhost:3000` so the browser origin matches the default API configuration.
+
+## API
 
 `GET /health` checks readiness. `POST /api/predict` accepts one multipart `image` (JPEG, PNG, or WebP; up to 10 MiB and 40 megapixels) and returns a prediction, confidence, and both class scores.
 
 ```sh
 curl -f -F image=@tests/smiski/test-smiski.jpeg http://localhost:5050/api/predict
 ```
-
-For production, install the model, set `ALLOWED_ORIGINS` to the frontend origin, and start the API:
-
-```sh
-uv run --locked gunicorn --bind "0.0.0.0:${PORT:-5050}" --workers 1 --timeout 120 backend.api.app:app
-```
-
-Set `NEXT_PUBLIC_API_URL` before building the frontend with `npm run build`; serve it with `npm start`. See [.env.example](.env.example) and [frontend/.env.example](frontend/.env.example) for configuration. Public hosting and rate limiting remain deployment work.
 
 ## Model
 
