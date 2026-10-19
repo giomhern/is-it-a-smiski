@@ -1,60 +1,40 @@
-# === GLOBAL (common to all OS and devs) ===
-.DS_Store
-Thumbs.db
+# Local configuration and credentials
 .env
-.env.local
-*.log
+.env.*
+!.env.example
+*.pem
+*.key
 
-**/*/__pycache__/
-**/__pycache__/
-
-# === PYTHON / DJANGO (backend) ===
-backend/__pycache__/
-backend/**/*/__pycache__/
-backend/**/*.py[cod]
-backend/*.sqlite3
-backend/env/
-backend/venv/
-backend/*.pyc
-backend/.pytest_cache/
-backend/.mypy_cache/
-backend/db.sqlite3
-
-# Django specific
-backend/media/
-backend/staticfiles/
-backend/.coverage
-backend/coverage.xml
-
-# === NODE / NEXT.JS (frontend) ===
-frontend/node_modules/
-frontend/.next/
-frontend/out/
-frontend/.turbo/
-frontend/.eslintcache
-frontend/next-env.d.ts
-
-# === VSCODE / IDEs ===
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# === MAC / OS ===
-**/.DS_Store
-
-# === DOCKER / BUILD FILES (optional) ===
-*.bak
-*.tar
-*.gz
-*.zip
-*.egg-info/
-
-backend/models/*.pt
-
-
-data
-# Local Python environment
+# Python environments and generated files
 .venv/
+venv/
+__pycache__/
+*.py[cod]
 *.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage/
+
+# Node/Next.js generated files
+node_modules/
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+.vercel/
+
+# Local training data and checkpoint binaries
+/data/
+backend/models/*.pt
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+*.swp
+*.swo

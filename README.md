@@ -4,9 +4,13 @@ A small machine learning web app by a Smiski collector. Upload a photo to get a 
 
 [Meet Smiski](https://smiski.com/e/smiski/). This is an independent fan project, unaffiliated with the brand.
 
+![The simple Smiski photo upload screen](docs/screenshots/app.jpg)
+
+Coding, design, verification, and commit standards are in [AGENTS.md](AGENTS.md).
+
 ## Architecture
 
-- **Frontend:** Next.js 15, React 19, Tailwind CSS 4, Motion.
+- **Frontend:** Next.js 15, React 19, and a small CSS stylesheet.
 - **API:** Flask, served with Gunicorn in production.
 - **Model:** PyTorch / torchvision ResNet50, two classes (`0 = Non-Smiski`, `1 = Smiski`).
 - **Uploads:** decoded in memory for prediction; the API does not save uploaded photos.
@@ -16,10 +20,9 @@ A small machine learning web app by a Smiski collector. Upload a photo to get a 
 backend/
   api/app.py             Flask API
   config.py              Repository-relative paths and environment
-  helpers/load_data.py   Original dataset manifest loader
   helpers/dataset.py     Audited snapshots and duplicate-aware splits
   models/manifest.json   Checkpoint identity and SHA-256
-  transfer/main.py       Classifier and training entry point
+  transfer/main.py       Classifier and shared image preprocessing
 frontend/                Next.js app
 scripts/
   install_model.py       Verified checkpoint installation
@@ -91,7 +94,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Keep an existing `.env.local` if already configured. Open `http://localhost:3000`. The frontend example points `NEXT_PUBLIC_API_URL` at `http://localhost:5050`; restart Next.js after changing it. This variable is public and must never contain secrets.
+Keep an existing `.env.local` if already configured. Open `http://localhost:3000`. The frontend example points `NEXT_PUBLIC_API_URL` at `http://localhost:5050`; restart Next.js after changing it. This variable is public and must never contain secrets. If development hits a file-watcher limit, start with `WATCHPACK_POLLING=true npm run dev`.
 
 ### 5. Try a prediction
 
@@ -124,11 +127,12 @@ uv run --locked python -m unittest discover -s tests/unit -v
 cd frontend
 npm run lint
 npm run typecheck
+npm test
 npm run build
 npm start
 ```
 
-The backend smoke tests exercise both sample images, invalid uploads, checkpoint integrity failures, portable data paths, and startup without an ImageNet download. They verify the inference workflow, not held-out model accuracy. The frontend uses Google Fonts at build time, so the build needs network access to Google's font servers.
+The backend smoke tests exercise both sample images, invalid uploads, checkpoint integrity failures, portable data paths, and startup without an ImageNet download. They verify the inference workflow, not held-out model accuracy. Frontend regression tests cover file validation, response validation, service failures, cancellation, and timeouts.
 
 Dependency maintenance: Next.js is updated within version 15, and the PostCSS override selects a patched version compatible with its existing major version. As of this setup check, `npm audit` still reports five high-severity entries in the development-only ESLint dependency chain, all stemming from the [braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm). The current braces release has no patched version. Recheck dependency advisories before public deployment.
 
@@ -200,7 +204,7 @@ An alternative manifest installs to its declared filename under `backend/models/
 uv sync --locked --extra training
 ```
 
-Provide images under `data/raw/smiski/` and `data/raw/non_smiski/`, or set `DATA_DIR`. The original loader supports manifests, but new snapshots inventory all supported images in the two class directories, audit manifest metadata and group duplicates. Review the folder labels before treating them as ground truth.
+Provide images under `data/raw/smiski/` and `data/raw/non_smiski/`, or set `DATA_DIR`. Snapshots inventory supported images in the two class directories, audit manifest metadata and group duplicates. Review the folder labels before treating them as ground truth.
 
 Dataset collection accepts an explicit API key from the shell (the downloader does not load `.env` itself):
 
