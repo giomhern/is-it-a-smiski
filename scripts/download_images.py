@@ -1,6 +1,17 @@
-import argparse, asyncio, csv, hashlib, io, os, random, re, sys, time, math, json
+import argparse
+import asyncio
+import csv
+import hashlib
+import io
+import json
+import math
+import os
+import random
+import re
+import sys
+import time
 from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
 from PIL import Image
@@ -24,11 +35,13 @@ FLICKR_LICENSE_MAP = {
     "10": "CC0",
 }
 
+
 def slugify(s: str) -> str:
     s = s.lower()
     s = re.sub(r"[^a-z0-9._-]+", "-", s)
     s = re.sub(r"-{2,}", "-", s).strip("-")
     return s or "img"
+
 
 def pick_ext(url: str, content_type: Optional[str]) -> str:
     uext = Path(url).suffix.lower()
@@ -36,12 +49,16 @@ def pick_ext(url: str, content_type: Optional[str]) -> str:
         return uext
     ct = (content_type or "").split(";")[0].strip().lower()
     return {
-        "image/jpeg": ".jpg", "image/jpg": ".jpg",
-        "image/png": ".png", "image/webp": ".webp",
+        "image/jpeg": ".jpg",
+        "image/jpg": ".jpg",
+        "image/png": ".png",
+        "image/webp": ".webp",
     }.get(ct, ".jpg")
+
 
 def sha256_bytes(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
+
 
 def read_w_h(b: bytes) -> Tuple[Optional[int], Optional[int]]:
     try:
@@ -50,7 +67,14 @@ def read_w_h(b: bytes) -> Tuple[Optional[int], Optional[int]]:
     except Exception:
         return None, None
 
-async def flickr_search(session: aiohttp.ClientSession, key: str, query: str, limit: int, license_filter: Optional[str]) -> List[Dict[str, Any]]:
+
+async def flickr_search(
+    session: aiohttp.ClientSession,
+    key: str,
+    query: str,
+    limit: int,
+    license_filter: Optional[str],
+) -> List[Dict[str, Any]]:
     per_page = 250
     pages = math.ceil(limit / per_page)
     out: List[Dict[str, Any]] = []
@@ -73,10 +97,15 @@ async def flickr_search(session: aiohttp.ClientSession, key: str, query: str, li
         if licenses:
             params["license"] = licenses
 
-        async with session.get(FLICKR_ENDPOINT, params=params, timeout=TIMEOUT, headers={"User-Agent": UA}) as r:
+        async with session.get(
+            FLICKR_ENDPOINT, params=params, timeout=TIMEOUT, headers={"User-Agent": UA}
+        ) as r:
             if r.status != 200:
                 text = await r.text()
-                print(f"[flickr] HTTP {r.status} for '{query}' page={page}: {text[:200]}", file=sys.stderr)
+                print(
+                    f"[flickr] HTTP {r.status} for '{query}' page={page}: {text[:200]}",
+                    file=sys.stderr,
+                )
                 break
 
             data = await r.json()
@@ -85,31 +114,43 @@ async def flickr_search(session: aiohttp.ClientSession, key: str, query: str, li
                 break
 
             for p in photos:
-                url = p.get("url_o") or p.get("url_l") or p.get("url_c") or p.get("url_m")
+                url = (
+                    p.get("url_o") or p.get("url_l") or p.get("url_c") or p.get("url_m")
+                )
                 if not url:
                     continue
-                page_url = f"https://www.flickr.com/photos/{p.get('owner')}/{p.get('id')}"
-                out.append({
-                    "source_url": url,
-                    "page_url": page_url,
-                    "license": FLICKR_LICENSE_MAP.get(str(p.get("license")), None),
-                    "query": query,
-                    "provider": "flickr",
-                })
+                page_url = (
+                    f"https://www.flickr.com/photos/{p.get('owner')}/{p.get('id')}"
+                )
+                out.append(
+                    {
+                        "source_url": url,
+                        "page_url": page_url,
+                        "license": FLICKR_LICENSE_MAP.get(str(p.get("license")), None),
+                        "query": query,
+                        "provider": "flickr",
+                    }
+                )
 
         await asyncio.sleep(0.3 + random.random() * 0.6)
         if len(out) >= limit:
             break
     return out[:limit]
 
-async def fetch_bytes(session: aiohttp.ClientSession, url: str) -> Tuple[Optional[bytes], Optional[str], int]:
+
+async def fetch_bytes(
+    session: aiohttp.ClientSession, url: str
+) -> Tuple[Optional[bytes], Optional[str], int]:
     try:
-        async with session.get(url, headers={"User-Agent": UA}, allow_redirects=True, timeout=TIMEOUT) as r:
+        async with session.get(
+            url, headers={"User-Agent": UA}, allow_redirects=True, timeout=TIMEOUT
+        ) as r:
             if r.status != 200:
                 return None, None, r.status
             return await r.read(), r.headers.get("Content-Type"), 200
     except Exception:
         return None, None, -1
+
 
 async def main():
     ap = argparse.ArgumentParser(description="Flickr image downloader with manifest")
@@ -120,8 +161,12 @@ async def main():
     ap.add_argument("--min-width", type=int, default=256)
     ap.add_argument("--min-height", type=int, default=256)
     ap.add_argument("--concurrency", type=int, default=12)
-    ap.add_argument("--license-filter", choices=["cc"], default=None,
-                    help="Use 'cc' to restrict to Creative Commons / PD / CC0 (recommended).")
+    ap.add_argument(
+        "--license-filter",
+        choices=["cc"],
+        default=None,
+        help="Use 'cc' to restrict to Creative Commons / PD / CC0 (recommended).",
+    )
     ap.add_argument("--manifest-prefix", default="download_manifest")
     args = ap.parse_args()
 
@@ -138,22 +183,40 @@ async def main():
     connector = aiohttp.TCPConnector(limit_per_host=max(4, args.concurrency))
 
     # Sync context for files
-    with open(csv_path, "w", newline="", encoding="utf-8") as csvf, \
-         open(jsonl_path, "w", encoding="utf-8") as jsonlf:
-
-        writer = csv.DictWriter(csvf, fieldnames=[
-            "id","label","query","provider","source_url","page_url","license",
-            "filepath","width","height","sha256","status","reason"
-        ])
+    with (
+        open(csv_path, "w", newline="", encoding="utf-8") as csvf,
+        open(jsonl_path, "w", encoding="utf-8") as jsonlf,
+    ):
+        writer = csv.DictWriter(
+            csvf,
+            fieldnames=[
+                "id",
+                "label",
+                "query",
+                "provider",
+                "source_url",
+                "page_url",
+                "license",
+                "filepath",
+                "width",
+                "height",
+                "sha256",
+                "status",
+                "reason",
+            ],
+        )
         writer.writeheader()
 
         # Async session
-        async with aiohttp.ClientSession(connector=connector, headers={"User-Agent": UA}) as session:
-
+        async with aiohttp.ClientSession(
+            connector=connector, headers={"User-Agent": UA}
+        ) as session:
             all_records: List[Dict[str, Any]] = []
             for q in args.queries:
                 print(f"[flickr] searching '{q}' (limit={args.per_query})")
-                recs = await flickr_search(session, key, q, args.per_query, args.license_filter)
+                recs = await flickr_search(
+                    session, key, q, args.per_query, args.license_filter
+                )
                 all_records.extend(recs)
                 await asyncio.sleep(0.2 + random.random() * 0.3)
             print(f"[flickr] {len(all_records)} candidate URLs")
@@ -162,7 +225,9 @@ async def main():
             seen_urls, seen_hashes = set(), set()
             lock = asyncio.Lock()
 
-            async def worker(rec: Dict[str, Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+            async def worker(
+                rec: Dict[str, Any],
+            ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
                 async with sem:
                     url = rec.get("source_url")
                     if not url:
@@ -184,10 +249,15 @@ async def main():
 
                     w, h = read_w_h(b)
                     if (w and w < args.min_width) or (h and h < args.min_height):
-                        return rec, {"status": "skip", "reason": "too_small", "width": w, "height": h}
+                        return rec, {
+                            "status": "skip",
+                            "reason": "too_small",
+                            "width": w,
+                            "height": h,
+                        }
 
                     ext = pick_ext(url, ct)
-                    fname = f"{slugify(rec['query'])}-{int(time.time()*1000)}-{random.randint(1000,9999)}{ext}"
+                    fname = f"{slugify(rec['query'])}-{int(time.time() * 1000)}-{random.randint(1000, 9999)}{ext}"
                     path = outdir / fname
                     try:
                         with open(path, "wb") as f:
@@ -199,15 +269,27 @@ async def main():
                         seen_urls.add(url)
                         seen_hashes.add(hsh)
 
-                    return rec, {"status": "ok", "filepath": str(path), "sha256": hsh, "width": w, "height": h}
+                    return rec, {
+                        "status": "ok",
+                        "filepath": str(path),
+                        "sha256": hsh,
+                        "width": w,
+                        "height": h,
+                    }
 
-            tasks = [asyncio.create_task(worker(r)) for r in all_records if r.get("source_url")]
+            tasks = [
+                asyncio.create_task(worker(r))
+                for r in all_records
+                if r.get("source_url")
+            ]
             done = 0
 
             for fut in asyncio.as_completed(tasks):
                 rec, res = await fut
                 row = {
-                    "id": hashlib.md5((rec["source_url"] or str(time.time())).encode()).hexdigest(),
+                    "id": hashlib.md5(
+                        (rec["source_url"] or str(time.time())).encode()
+                    ).hexdigest(),
                     "label": args.label,
                     "query": rec["query"],
                     "provider": rec["provider"],
@@ -230,6 +312,7 @@ async def main():
             print(f"✅ Done. Saved to {outdir}")
             print(f"   Manifest CSV:   {csv_path}")
             print(f"   Manifest JSONL: {jsonl_path}")
+
 
 if __name__ == "__main__":
     try:

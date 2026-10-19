@@ -1,10 +1,10 @@
 """Auditable, portable dataset snapshots with duplicate-aware train/val/test splits."""
 
-from collections import Counter, defaultdict
 import hashlib
 import json
-from pathlib import Path
 import random
+from collections import Counter, defaultdict
+from pathlib import Path
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
@@ -33,7 +33,9 @@ def image_signatures(path):
         image = ImageOps.exif_transpose(raw).convert("RGB")
         pixels = hashlib.sha256(str(image.size).encode() + image.tobytes()).hexdigest()
         # 128-bit dHash: low Hamming distance flags candidate near-duplicates.
-        small = list(image.convert("L").resize((17, 8), Image.Resampling.LANCZOS).getdata())
+        small = list(
+            image.convert("L").resize((17, 8), Image.Resampling.LANCZOS).getdata()
+        )
         dhash = 0
         for y in range(8):
             for x in range(16):
@@ -87,7 +89,9 @@ def assign_splits(records, seed=42):
                 grouped[record["group"]].append(record)
         groups = [grouped[key] for key in sorted(grouped)]
         if len(groups) < 3:
-            raise ValueError(f"Class {label} needs at least three independent groups for train/validation/test")
+            raise ValueError(
+                f"Class {label} needs at least three independent groups for train/validation/test"
+            )
         rng.shuffle(groups)
         groups.sort(key=lambda group: -len(group))
         total = sum(map(len, groups))
@@ -97,10 +101,16 @@ def assign_splits(records, seed=42):
             if index < 3:
                 split = list(SPLITS)[index]
             else:
-                split = min(SPLITS, key=lambda name: (
-                    (counts[name] + len(group) - targets[name]) ** 2
-                    - (counts[name] - targets[name]) ** 2
-                ) / targets[name])
+                split = min(
+                    SPLITS,
+                    key=lambda name: (
+                        (
+                            (counts[name] + len(group) - targets[name]) ** 2
+                            - (counts[name] - targets[name]) ** 2
+                        )
+                        / targets[name]
+                    ),
+                )
             for record in group:
                 record["split"] = split
             counts[split] += len(group)
@@ -121,8 +131,12 @@ def build_snapshot(data_dir, seed=42, distance=6):
                 try:
                     entry = json.loads(line)
                 except json.JSONDecodeError:
-                    raise ValueError(f"Invalid JSON in {folder} manifest line {line_number}") from None
-                filename = entry.get("filepath") or entry.get("file") or entry.get("filename")
+                    raise ValueError(
+                        f"Invalid JSON in {folder} manifest line {line_number}"
+                    ) from None
+                filename = (
+                    entry.get("filepath") or entry.get("file") or entry.get("filename")
+                )
                 if filename and entry.get("status", "ok") == "ok":
                     metadata[Path(filename).name] = entry
         for path in sorted(class_dir.rglob("*")):
@@ -131,18 +145,41 @@ def build_snapshot(data_dir, seed=42, distance=6):
             relative = path.relative_to(data_dir).as_posix()
             try:
                 pixel_hash, dhash, width, height = image_signatures(path)
-            except (OSError, UnidentifiedImageError, Image.DecompressionBombError) as error:
-                excluded.append({"path": relative, "reason": "unreadable_image", "error": type(error).__name__})
+            except (
+                OSError,
+                UnidentifiedImageError,
+                Image.DecompressionBombError,
+            ) as error:
+                excluded.append(
+                    {
+                        "path": relative,
+                        "reason": "unreadable_image",
+                        "error": type(error).__name__,
+                    }
+                )
                 continue
             source = metadata.get(path.name, {})
             if source.get("label") not in (None, folder):
-                warnings.append({"path": relative, "reason": "manifest_label_differs_from_folder", "manifest_label": source["label"]})
-            records.append({
-                "path": relative, "label": label, "sha256": file_sha256(path),
-                "pixel_sha256": pixel_hash, "dhash": dhash,
-                "width": width, "height": height,
-                "source_page": source.get("page_url"), "license": source.get("license"),
-            })
+                warnings.append(
+                    {
+                        "path": relative,
+                        "reason": "manifest_label_differs_from_folder",
+                        "manifest_label": source["label"],
+                    }
+                )
+            records.append(
+                {
+                    "path": relative,
+                    "label": label,
+                    "sha256": file_sha256(path),
+                    "pixel_sha256": pixel_hash,
+                    "dhash": dhash,
+                    "width": width,
+                    "height": height,
+                    "source_page": source.get("page_url"),
+                    "license": source.get("license"),
+                }
+            )
     if not records:
         raise ValueError(f"No readable dataset images found in {data_dir}")
     usable = []
@@ -155,16 +192,28 @@ def build_snapshot(data_dir, seed=42, distance=6):
         for record in sorted(members, key=lambda row: row["path"]):
             pixels = record["pixel_sha256"]
             if pixels in seen_pixels:
-                excluded.append({**record, "reason": "exact_pixel_duplicate", "duplicate_of": seen_pixels[pixels]})
+                excluded.append(
+                    {
+                        **record,
+                        "reason": "exact_pixel_duplicate",
+                        "duplicate_of": seen_pixels[pixels],
+                    }
+                )
             else:
                 seen_pixels[pixels] = record["path"]
                 usable.append(record)
     assign_splits(usable, seed)
     snapshot = {
-        "schema_version": 1, "seed": seed, "ratios": SPLITS,
-        "grouping": {"algorithm": "sha256+RGB-pixels+source-photo+128-bit-dHash", "hamming_distance": distance},
+        "schema_version": 1,
+        "seed": seed,
+        "ratios": SPLITS,
+        "grouping": {
+            "algorithm": "sha256+RGB-pixels+source-photo+128-bit-dHash",
+            "hamming_distance": distance,
+        },
         "records": sorted(usable, key=lambda record: record["path"]),
-        "excluded": sorted(excluded, key=lambda record: record["path"]), "warnings": warnings,
+        "excluded": sorted(excluded, key=lambda record: record["path"]),
+        "warnings": warnings,
     }
     snapshot["fingerprint"] = dataset_fingerprint(snapshot)
     return snapshot
@@ -172,8 +221,12 @@ def build_snapshot(data_dir, seed=42, distance=6):
 
 def load_snapshot(path, data_dir, verify_files=True):
     snapshot = json.loads(Path(path).read_text())
-    if snapshot.get("schema_version") != 1 or snapshot.get("fingerprint") != dataset_fingerprint(snapshot):
-        raise ValueError("Dataset snapshot fingerprint/schema is invalid; regenerate it explicitly")
+    if snapshot.get("schema_version") != 1 or snapshot.get(
+        "fingerprint"
+    ) != dataset_fingerprint(snapshot):
+        raise ValueError(
+            "Dataset snapshot fingerprint/schema is invalid; regenerate it explicitly"
+        )
     groups, pixels, paths = {}, {}, set()
     root = Path(data_dir).resolve()
     for record in snapshot["records"]:
@@ -188,19 +241,29 @@ def load_snapshot(path, data_dir, verify_files=True):
         if record["path"] in paths:
             raise ValueError("Repeated image path in snapshot")
         paths.add(record["path"])
-        for mapping, key in ((groups, record["group"]), (pixels, record["pixel_sha256"]), (pixels, record["sha256"])):
+        for mapping, key in (
+            (groups, record["group"]),
+            (pixels, record["pixel_sha256"]),
+            (pixels, record["sha256"]),
+        ):
             if key in mapping and mapping[key] != record["split"]:
                 raise ValueError("Duplicate leakage across dataset splits")
             mapping[key] = record["split"]
         if verify_files and file_sha256(path) != record["sha256"]:
-            raise ValueError(f"Dataset image changed since split creation: {record['path']}")
+            raise ValueError(
+                f"Dataset image changed since split creation: {record['path']}"
+            )
     for split in SPLITS:
-        if {row["label"] for row in snapshot["records"] if row["split"] == split} != {0, 1}:
+        if {row["label"] for row in snapshot["records"] if row["split"] == split} != {
+            0,
+            1,
+        }:
             raise ValueError(f"Split {split} must include both classes")
     return snapshot
 
 
 def default_data_dir():
     import os
+
     path = Path(os.getenv("DATA_DIR") or "data/raw").expanduser()
     return path if path.is_absolute() else ROOT_DIR / path

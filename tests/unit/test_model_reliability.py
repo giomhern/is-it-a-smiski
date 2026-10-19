@@ -1,18 +1,24 @@
-from collections import Counter
 import io
 import json
-from pathlib import Path
 import random
 import tempfile
 import unittest
+from collections import Counter
+from pathlib import Path
 
-from PIL import Image
 import torch
+from PIL import Image
 
-from backend.helpers.dataset import build_snapshot, dataset_fingerprint, group_records, load_snapshot
+from backend.helpers.dataset import (
+    build_snapshot,
+    dataset_fingerprint,
+    group_records,
+    load_snapshot,
+)
 from backend.helpers.evaluation import calculate_metrics
-from backend.transfer.main import SmiskiClassifier, val_transforms
+from backend.transfer.main import val_transforms
 from scripts.evaluate_model import evaluation_status
+from scripts.train_model import training_partitions
 
 
 def fixture_dataset(directory):
@@ -22,7 +28,9 @@ def fixture_dataset(directory):
         folder = root / name
         folder.mkdir()
         for index in range(10):
-            Image.frombytes("RGB", (32, 32), randomizer.randbytes(32 * 32 * 3)).save(folder / f"{index:02d}.png")
+            Image.frombytes("RGB", (32, 32), randomizer.randbytes(32 * 32 * 3)).save(
+                folder / f"{index:02d}.png"
+            )
     # A contradictory duplicate is quarantined in both folders.
     image = (root / "smiski/00.png").read_bytes()
     (root / "non_smiski/conflicting.png").write_bytes(image)
@@ -39,7 +47,14 @@ class DatasetTests(unittest.TestCase):
             snapshot = build_snapshot(root)
             self.assertEqual(snapshot, build_snapshot(root))
             reasons = Counter(row["reason"] for row in snapshot["excluded"])
-            self.assertEqual(reasons, {"cross_label_duplicate_group": 2, "exact_pixel_duplicate": 1, "unreadable_image": 1})
+            self.assertEqual(
+                reasons,
+                {
+                    "cross_label_duplicate_group": 2,
+                    "exact_pixel_duplicate": 1,
+                    "unreadable_image": 1,
+                },
+            )
             groups = {}
             for record in snapshot["records"]:
                 groups.setdefault(record["group"], set()).add(record["split"])
@@ -48,13 +63,30 @@ class DatasetTests(unittest.TestCase):
             snapshot_path.write_text(json.dumps(snapshot))
             self.assertEqual(load_snapshot(snapshot_path, root), snapshot)
             for split in ("train", "validation", "test"):
-                self.assertEqual({row["label"] for row in snapshot["records"] if row["split"] == split}, {0, 1})
+                self.assertEqual(
+                    {
+                        row["label"]
+                        for row in snapshot["records"]
+                        if row["split"] == split
+                    },
+                    {0, 1},
+                )
 
     def test_near_duplicates_and_source_photo_are_grouped_transitively(self):
         records = [
             {"sha256": "a", "pixel_sha256": "a", "dhash": "00", "source_page": None},
-            {"sha256": "b", "pixel_sha256": "b", "dhash": "01", "source_page": "same-photo"},
-            {"sha256": "c", "pixel_sha256": "c", "dhash": "ff", "source_page": "same-photo"},
+            {
+                "sha256": "b",
+                "pixel_sha256": "b",
+                "dhash": "01",
+                "source_page": "same-photo",
+            },
+            {
+                "sha256": "c",
+                "pixel_sha256": "c",
+                "dhash": "ff",
+                "source_page": "same-photo",
+            },
         ]
         self.assertEqual(len(group_records(records, distance=1)), 1)
         self.assertEqual(len({row["group"] for row in records}), 1)
@@ -90,16 +122,22 @@ class DatasetTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "leakage"):
                 load_snapshot(path, root)
 
-    def test_training_loaders_do_not_include_reserved_test_photos(self):
+    def test_training_partitions_do_not_include_reserved_test_photos(self):
         with tempfile.TemporaryDirectory() as directory:
             root = fixture_dataset(directory)
             snapshot = build_snapshot(root)
             path = root / "snapshot.json"
             path.write_text(json.dumps(snapshot))
-            classifier = SmiskiClassifier()
-            classifier.prepare_data(path, root)
-            used = set(classifier.train_loader.dataset.image_paths + classifier.val_loader.dataset.image_paths)
-            reserved = {root / row["path"] for row in snapshot["records"] if row["split"] == "test"}
+            verified = load_snapshot(path, root)
+            train, validation = training_partitions(verified)
+            self.assertTrue(all(row["split"] == "train" for row in train))
+            self.assertTrue(all(row["split"] == "validation" for row in validation))
+            used = {root / row["path"] for row in train + validation}
+            reserved = {
+                root / row["path"]
+                for row in snapshot["records"]
+                if row["split"] == "test"
+            }
             self.assertTrue(used.isdisjoint(reserved))
 
 
@@ -119,19 +157,35 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(result["per_class"]["Smiski"]["f1"], 0)
 
     def test_legacy_checkpoint_cannot_claim_held_out_results(self):
-        self.assertEqual(evaluation_status("hash", {}, None, "test"), "diagnostic_only_training_provenance_unknown")
-        snapshot = {"fingerprint": "dataset", "records": [
-            {"sha256": "train", "split": "train"}, {"sha256": "val", "split": "validation"},
-        ]}
-        metadata = {"checkpoint_sha256": "hash", "dataset_fingerprint": "dataset",
-                    "training_image_sha256": ["train"], "validation_image_sha256": ["val"]}
-        self.assertEqual(evaluation_status("hash", snapshot, metadata, "test"), "held_out_for_this_training_run")
+        self.assertEqual(
+            evaluation_status("hash", {}, None, "test"),
+            "diagnostic_only_training_provenance_unknown",
+        )
+        snapshot = {
+            "fingerprint": "dataset",
+            "records": [
+                {"sha256": "train", "split": "train"},
+                {"sha256": "val", "split": "validation"},
+            ],
+        }
+        metadata = {
+            "checkpoint_sha256": "hash",
+            "dataset_fingerprint": "dataset",
+            "training_image_sha256": ["train"],
+            "validation_image_sha256": ["val"],
+        }
+        self.assertEqual(
+            evaluation_status("hash", snapshot, metadata, "test"),
+            "held_out_for_this_training_run",
+        )
         metadata["training_image_sha256"] = ["test"]
         with self.assertRaisesRegex(ValueError, "partitions"):
             evaluation_status("hash", snapshot, metadata, "test")
 
     def test_validation_transform_is_deterministic(self):
-        image = Image.frombytes("RGB", (64, 64), random.Random(43).randbytes(64 * 64 * 3))
+        image = Image.frombytes(
+            "RGB", (64, 64), random.Random(43).randbytes(64 * 64 * 3)
+        )
         self.assertTrue(torch.equal(val_transforms(image), val_transforms(image)))
 
 
@@ -139,12 +193,15 @@ class ServingConsistencyTests(unittest.TestCase):
     def test_repeated_api_uploads_return_identical_predictions(self):
         from backend.api.app import app
         from backend.config import ROOT_DIR
+
         client = app.test_client()
         for fixture in ("smiski/test-smiski.jpeg", "non-smiski/test-sonny-angel.jpg"):
             payload = (ROOT_DIR / "tests" / fixture).read_bytes()
             results = []
             for _ in range(3):
-                response = client.post("/api/predict", data={"image": (io.BytesIO(payload), "photo.jpg")})
+                response = client.post(
+                    "/api/predict", data={"image": (io.BytesIO(payload), "photo.jpg")}
+                )
                 self.assertEqual(response.status_code, 200)
                 results.append(response.json)
             self.assertEqual(results[0], results[1])

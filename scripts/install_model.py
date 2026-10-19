@@ -4,9 +4,9 @@ import argparse
 import hashlib
 import json
 import os
-from pathlib import Path
 import shutil
 import tempfile
+from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
@@ -38,7 +38,11 @@ def install_model(source=None, destination=None, manifest_path=None):
     if destination.is_file() and sha256(destination) == expected:
         return destination
 
-    source = source or (os.getenv("MODEL_URL") if manifest_path is None else None) or manifest["url"]
+    source = (
+        source
+        or (os.getenv("MODEL_URL") if manifest_path is None else None)
+        or manifest["url"]
+    )
     if not source:
         raise ValueError(
             "No checkpoint source configured. Set MODEL_URL to a trusted hosted checkpoint "
@@ -49,7 +53,9 @@ def install_model(source=None, destination=None, manifest_path=None):
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = None
     try:
-        with tempfile.NamedTemporaryFile(dir=destination.parent, suffix=".part", delete=False) as output:
+        with tempfile.NamedTemporaryFile(
+            dir=destination.parent, suffix=".part", delete=False
+        ) as output:
             temporary = Path(output.name)
             parsed = urlparse(str(source))
             if parsed.scheme in ("https", "http"):
@@ -59,7 +65,9 @@ def install_model(source=None, destination=None, manifest_path=None):
                 with Path(source).expanduser().open("rb") as stream:
                     shutil.copyfileobj(stream, output)
         if sha256(temporary) != expected:
-            raise ValueError("Checkpoint checksum mismatch; existing model was left untouched.")
+            raise ValueError(
+                "Checkpoint checksum mismatch; existing model was left untouched."
+            )
         temporary.replace(destination)
         return destination
     finally:
@@ -69,12 +77,20 @@ def install_model(source=None, destination=None, manifest_path=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", help="Trusted checkpoint URL or local checkpoint path")
-    parser.add_argument("--manifest", type=Path, help="Alternative versioned checkpoint manifest")
-    parser.add_argument("--destination", type=Path, help="Override the checkpoint output path")
+    parser.add_argument(
+        "--source", help="Trusted checkpoint URL or local checkpoint path"
+    )
+    parser.add_argument(
+        "--manifest", type=Path, help="Alternative versioned checkpoint manifest"
+    )
+    parser.add_argument(
+        "--destination", type=Path, help="Override the checkpoint output path"
+    )
     args = parser.parse_args()
     try:
-        print(f"Checkpoint ready: {install_model(args.source, args.destination, args.manifest)}")
+        print(
+            f"Checkpoint ready: {install_model(args.source, args.destination, args.manifest)}"
+        )
     except (OSError, ValueError) as error:
         parser.exit(1, f"Model installation failed: {error}\n")
 

@@ -10,5 +10,7 @@ load_dotenv(ROOT_DIR / ".env")
 
 
 def get_model_path():
-    path = Path(os.getenv("MODEL_PATH") or "backend/models/smiski_classifier.pt").expanduser()
+    path = Path(
+        os.getenv("MODEL_PATH") or "backend/models/smiski_classifier.pt"
+    ).expanduser()
     return path if path.is_absolute() else ROOT_DIR / path

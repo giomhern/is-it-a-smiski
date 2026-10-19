@@ -1,10 +1,13 @@
 import argparse
-from backend.transfer.main import SmiskiClassifier
+
 from backend.config import get_model_path
+from backend.transfer.main import SmiskiClassifier
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test Smiski classifier on an image.")
-    parser.add_argument("--image_path", type=str, required=True, help="Path to the image")
+    parser.add_argument(
+        "--image_path", type=str, required=True, help="Path to the image"
+    )
 
     args = parser.parse_args()
     image_path = args.image_path
@@ -15,4 +18,6 @@ if __name__ == "__main__":
 
     print(f"Prediction: {'Smiski' if result['pred'] == 1 else 'Non-Smiski'}")
     print(f"Confidence: {result['probs'][result['pred']]:.2%}")
-    print(f"Probabilities: Smiski={result['probs'][1]:.2%}, Non-Smiski={result['probs'][0]:.2%}")
+    print(
+        f"Probabilities: Smiski={result['probs'][1]:.2%}, Non-Smiski={result['probs'][0]:.2%}"
+    )

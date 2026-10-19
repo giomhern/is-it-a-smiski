@@ -31,14 +31,16 @@ def predict():
         # Decode directly from the request: no shared temporary filenames or cleanup.
         with Image.open(file.stream) as image:
             result = clf.predict(image.convert("RGB"))
-        return jsonify({
-            "prediction": "Smiski" if result["pred"] == 1 else "Non-Smiski",
-            "confidence": float(result["probs"][result["pred"]]),
-            "probabilities": {
-                "smiski": float(result["probs"][1]),
-                "non_smiski": float(result["probs"][0]),
-            },
-        })
+        return jsonify(
+            {
+                "prediction": "Smiski" if result["pred"] == 1 else "Non-Smiski",
+                "confidence": float(result["probs"][result["pred"]]),
+                "probabilities": {
+                    "smiski": float(result["probs"][1]),
+                    "non_smiski": float(result["probs"][0]),
+                },
+            }
+        )
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError):
         return jsonify({"error": "Please upload a valid image"}), 400
     except Exception:

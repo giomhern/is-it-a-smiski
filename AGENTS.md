@@ -15,6 +15,7 @@
 - Derive values instead of storing redundant state. Preserve cancellation, timeouts, object-URL cleanup, and protection against stale async results when simplifying the upload flow.
 - Use descriptive names, small focused functions, consistent formatting, and comments explaining non-obvious decisions. Avoid dense one-line logic and comments that repeat the code.
 - Use strict TypeScript. Validate unknown data at external boundaries; do not use `any` or unchecked casts to silence errors.
+- Use Prettier defaults for TypeScript/React/CSS and Ruff formatting/import sorting for Python; use maintenance tools without adding runtime dependencies.
 - Follow PEP 8 in Python. Keep training-only work and optimizer initialization out of API startup and inference.
 - Keep validation/inference preprocessing shared and deterministic. Do not alter checkpoint architecture, class ordering, preprocessing, or recorded model provenance as incidental cleanup.
 - Retain useful test fixtures, versioned dataset snapshots, model metadata, and evaluation reports. These are reproducibility evidence, not dead code.
