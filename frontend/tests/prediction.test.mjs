@@ -92,6 +92,7 @@ test("network failure, backend failure, oversize response, and malformed respons
       /unavailable/,
     ],
     [async () => new Response("too large", { status: 413 }), /under 10 MB/],
+    [async () => new Response("rate limited", { status: 429 }), /try again later/],
     [async () => new Response("<html>upstream error</html>"), /Could not read/],
     [async () => Response.json({ result: "wrong API" }), /Could not read/],
   ];

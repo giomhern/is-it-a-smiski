@@ -101,6 +101,8 @@ export async function requestPrediction(
   }
   signal.throwIfAborted();
   if (!response.ok) {
+    if (response.status === 429)
+      throw new Error("The server is busy. Please try again later.");
     if (response.status === 413)
       throw new Error("That photo is too big. Choose one under 10 MB.");
     if (response.status >= 500)
