@@ -1,0 +1,1527 @@
+{
+  "schema_version": 1,
+  "title": "Initial checkpoint diagnostic",
+  "evaluation_status": "diagnostic_only_training_provenance_unknown",
+  "checkpoint_sha256": "3c9f5bd691a3b66b139dcde2518d8a09c65a74a7deb664cc355f0eaca22db376",
+  "dataset_fingerprint": "45d171ff988cf7f39b0781bff907a1eeb76d3fe2bac1d85af7dcc43096d36c5d",
+  "split": "test",
+  "groups": 146,
+  "decision_rule": "argmax of two logits; no tuned threshold",
+  "preprocessing": "EXIF transpose, RGB, resize 224x224, ImageNet mean/std; no random augmentation",
+  "runtime": {
+    "device": "cpu",
+    "threads": 4,
+    "torch_version": "2.5.1",
+    "inference_and_decode_seconds": 18.739488999941386
+  },
+  "metrics": {
+    "count": 146,
+    "accuracy": 0.9863013698630136,
+    "macro_f1": 0.9853059581320451,
+    "balanced_accuracy": 0.9853059581320451,
+    "brier_score": 0.020673523380399055,
+    "confusion_matrix": {
+      "rows": [
+        "Non-Smiski",
+        "Smiski"
+      ],
+      "columns": [
+        "Non-Smiski",
+        "Smiski"
+      ],
+      "counts": [
+        [
+          91,
+          1
+        ],
+        [
+          1,
+          53
+        ]
+      ]
+    },
+    "per_class": {
+      "Non-Smiski": {
+        "precision": 0.9891304347826086,
+        "recall": 0.9891304347826086,
+        "f1": 0.9891304347826086,
+        "support": 92
+      },
+      "Smiski": {
+        "precision": 0.9814814814814815,
+        "recall": 0.9814814814814815,
+        "f1": 0.9814814814814815,
+        "support": 54
+      }
+    }
+  },
+  "limitations": [
+    "The initial checkpoint predates this split and may have seen these photos. These numbers are NOT held-out generalization results.",
+    "Labels come from collection folders, not a complete manual review; some negatives visibly contain Smiskis.",
+    "Duplicate grouping covers exact pixels, source-photo IDs, and nearby dHashes; crops, viewpoints and shooting sessions can still leak.",
+    "Metrics are per image, not per independent scene; a small, source-biased dataset cannot establish real-world accuracy.",
+    "Softmax scores are uncalibrated. No uncertainty threshold has been selected."
+  ],
+  "predictions": [
+    {
+      "path": "non_smiski/sonny-angel-1759260556874-2495.jpg",
+      "sha256": "c0c7fe3585999ad7d59b8f54a3693d19fac338c827e8bcd9e0bc80516b814824",
+      "group": "c0c7fe3585999ad7d59b8f54a3693d19fac338c827e8bcd9e0bc80516b814824",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821568286",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 1.1160398571519181e-05,
+      "score": 0.9999887943267822
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260560552-6899.jpg",
+      "sha256": "e1099d3ad34e0d67aa5bef9c95269039ef182edb0aae0c88a838ffde1e3da6ba",
+      "group": "e1099d3ad34e0d67aa5bef9c95269039ef182edb0aae0c88a838ffde1e3da6ba",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821823540",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.008704799227416515,
+      "score": 0.9912952184677124
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260572298-2698.jpg",
+      "sha256": "3d0960b3ffebbd4b9761b3b2c669caa312d74b697d0e7c930f987c98694591cb",
+      "group": "3d0960b3ffebbd4b9761b3b2c669caa312d74b697d0e7c930f987c98694591cb",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821750383",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0001361426111543551,
+      "score": 0.999863862991333
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260572906-3447.jpg",
+      "sha256": "61612833b1770f52b14a8665b958491351c679af7ded9754279b86d7911df75b",
+      "group": "61612833b1770f52b14a8665b958491351c679af7ded9754279b86d7911df75b",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821757403",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.3093511760234833,
+      "score": 0.6906487941741943
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260574608-6982.jpg",
+      "sha256": "5bf90adea927d51428cc24c69f641233df07769926f46ab872fe339c8fa0d73f",
+      "group": "5bf90adea927d51428cc24c69f641233df07769926f46ab872fe339c8fa0d73f",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821823670",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.016548343002796173,
+      "score": 0.9834517240524292
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260578293-4642.jpg",
+      "sha256": "dcf1dd7f6bc2a5e24aafa4c344d9390a6cad403fb90d201db5edf56ec4957716",
+      "group": "dcf1dd7f6bc2a5e24aafa4c344d9390a6cad403fb90d201db5edf56ec4957716",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821750358",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0030334785114973783,
+      "score": 0.996966540813446
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260580211-9749.jpg",
+      "sha256": "c1dce07c9ada2ce8499ffe6ac346cd8b78e10887476d8abe8bec49e9ccecb06c",
+      "group": "c1dce07c9ada2ce8499ffe6ac346cd8b78e10887476d8abe8bec49e9ccecb06c",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821823265",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0006816679378971457,
+      "score": 0.9993183612823486
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260588095-3714.jpg",
+      "sha256": "5eb72bb285d47aa844c8052a6c48a7b37766b35bdf7c028a33e4891dbbdce428",
+      "group": "5eb72bb285d47aa844c8052a6c48a7b37766b35bdf7c028a33e4891dbbdce428",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821750128",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 2.4809585738694295e-05,
+      "score": 0.9999752044677734
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260589513-9932.jpg",
+      "sha256": "09a7931b20eef8288e3af08263079d45865316bc8c94d9ede41e0cbf9822efd1",
+      "group": "09a7931b20eef8288e3af08263079d45865316bc8c94d9ede41e0cbf9822efd1",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821726009",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.001979985274374485,
+      "score": 0.9980200529098511
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260589920-1828.jpg",
+      "sha256": "3ccb5c656e6bf7ad1e72cd881df834751d5f3bdd5a390f58af6cea942cd893ff",
+      "group": "3ccb5c656e6bf7ad1e72cd881df834751d5f3bdd5a390f58af6cea942cd893ff",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821725954",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.7611291645589517e-06,
+      "score": 0.9999961853027344
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260591648-5629.jpg",
+      "sha256": "b1be1f0cad256e544c7288d382339aa03212d4773735a980ca6c39f5836cafe1",
+      "group": "b1be1f0cad256e544c7288d382339aa03212d4773735a980ca6c39f5836cafe1",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821726189",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.568298723166663e-07,
+      "score": 0.9999996423721313
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260594633-8285.jpg",
+      "sha256": "062c25fd7bcc0423025b352f3f5302046c877770cbf53cc04f232531b758da87",
+      "group": "062c25fd7bcc0423025b352f3f5302046c877770cbf53cc04f232531b758da87",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821725849",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 1.7672881824637443e-08,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260598677-9831.jpg",
+      "sha256": "7a52ed35de8f728bf156b50e280de7670bbc626b7bddb7682172dd3374831d71",
+      "group": "7a52ed35de8f728bf156b50e280de7670bbc626b7bddb7682172dd3374831d71",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821725634",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.07225856184959412,
+      "score": 0.9277414083480835
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260610874-3621.jpg",
+      "sha256": "fe668a5ba53356d7bc9eae59d03844bf5f2eb967884053b74f5cd273bbf29b53",
+      "group": "fe668a5ba53356d7bc9eae59d03844bf5f2eb967884053b74f5cd273bbf29b53",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821816420",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 1.6277945788165105e-12,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260612264-4771.jpg",
+      "sha256": "ff116ea909d9df2fbed522a71de941aeaae108a1213716d4be5597e3259679f5",
+      "group": "ff116ea909d9df2fbed522a71de941aeaae108a1213716d4be5597e3259679f5",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821725044",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.04555685445666313,
+      "score": 0.954443097114563
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260615600-3412.jpg",
+      "sha256": "9568175700dac8d3fcbcd03b2a5714324248a25918e389cd510776877a8ad65c",
+      "group": "9568175700dac8d3fcbcd03b2a5714324248a25918e389cd510776877a8ad65c",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821749023",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.00016946197138167918,
+      "score": 0.9998304843902588
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260620176-6149.jpg",
+      "sha256": "e60d2434e7b62b688c6577e874ffd4e64e6c2279627e1327912ae460b24b2dc2",
+      "group": "e60d2434e7b62b688c6577e874ffd4e64e6c2279627e1327912ae460b24b2dc2",
+      "source_page": "https://www.flickr.com/photos/7896336@N04/54821816185",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 5.2792284321867555e-08,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260621125-7771.jpg",
+      "sha256": "8d14e281c572bfb55487fc7247def0136788ef5916b46469d6607572be5eccb0",
+      "group": "8d14e281c572bfb55487fc7247def0136788ef5916b46469d6607572be5eccb0",
+      "source_page": "https://www.flickr.com/photos/63595140@N07/54617439394",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.03444445878267288,
+      "score": 0.9655554890632629
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260621290-7920.jpg",
+      "sha256": "df824ab4293ec18cc2ac97c70a56235439bd5f7f6ad809bae6491c0fe27e2033",
+      "group": "df824ab4293ec18cc2ac97c70a56235439bd5f7f6ad809bae6491c0fe27e2033",
+      "source_page": "https://www.flickr.com/photos/202052556@N05/54301676135",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0007158632506616414,
+      "score": 0.9992842078208923
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260621301-1844.jpg",
+      "sha256": "8d259b5d866784a4e31ccdaa246895a40aead6ebe4a0443db4cd3f672021752f",
+      "group": "8d259b5d866784a4e31ccdaa246895a40aead6ebe4a0443db4cd3f672021752f",
+      "source_page": "https://www.flickr.com/photos/200329607@N02/54408231634",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.029733160510659218,
+      "score": 0.9702668786048889
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260624358-7135.jpg",
+      "sha256": "1a7f7eba3b1fa72bba7d474836416e6258a442ff91d7c9b6323e707aafbdac9a",
+      "group": "1a7f7eba3b1fa72bba7d474836416e6258a442ff91d7c9b6323e707aafbdac9a",
+      "source_page": "https://www.flickr.com/photos/41839738@N00/54124557091",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.00020433559257071465,
+      "score": 0.9997957348823547
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260624425-5048.jpg",
+      "sha256": "fb83fa979412ea1e3669802be9056111835e8a2f3f64c665366b210c1073404a",
+      "group": "fb83fa979412ea1e3669802be9056111835e8a2f3f64c665366b210c1073404a",
+      "source_page": "https://www.flickr.com/photos/63595140@N07/54212625309",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0006943782209418714,
+      "score": 0.9993056058883667
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260625030-1509.jpg",
+      "sha256": "8748b3d00c8c24376645374324746adc882bc201e6f14544e2962c1c4f013632",
+      "group": "8748b3d00c8c24376645374324746adc882bc201e6f14544e2962c1c4f013632",
+      "source_page": "https://www.flickr.com/photos/41839738@N00/54124570769",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0005279341130517423,
+      "score": 0.9994720816612244
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260626362-4993.jpg",
+      "sha256": "0eb22957d0d4e6bc95ac40e7725c94801486504f57a5fe8b34e6f76ff3be7634",
+      "group": "0eb22957d0d4e6bc95ac40e7725c94801486504f57a5fe8b34e6f76ff3be7634",
+      "source_page": "https://www.flickr.com/photos/41839738@N00/54111043049",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 7.362636097241193e-05,
+      "score": 0.9999263286590576
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260646362-1291.jpg",
+      "sha256": "6cc559d9d367dc3a80e2dd1d493505777fe19816cfea87b8fa24dad54dd0b22d",
+      "group": "6cc559d9d367dc3a80e2dd1d493505777fe19816cfea87b8fa24dad54dd0b22d",
+      "source_page": "https://www.flickr.com/photos/37206907@N08/53624241334",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.4612032322911546e-05,
+      "score": 0.9999654293060303
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260651497-4848.jpg",
+      "sha256": "03513870c0d0681dc4d365334575d00b3ed52edc8a4904dd64f14d1fe3e1cf73",
+      "group": "03513870c0d0681dc4d365334575d00b3ed52edc8a4904dd64f14d1fe3e1cf73",
+      "source_page": "https://www.flickr.com/photos/94380433@N05/53678648994",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 1.2495406735979486e-06,
+      "score": 0.9999988079071045
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260656504-7655.jpg",
+      "sha256": "d3b3c2bc875658aad42d5534ae1c1454da8454cafbf38a4669e9e3bc0890658f",
+      "group": "d3b3c2bc875658aad42d5534ae1c1454da8454cafbf38a4669e9e3bc0890658f",
+      "source_page": "https://www.flickr.com/photos/67896390@N03/53513426753",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0026835049502551556,
+      "score": 0.9973165392875671
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260656953-9818.jpg",
+      "sha256": "55791a3f7bb5cdd1b7a44aa5ad89ff37a08daad30f971e3e349f63fef62e316b",
+      "group": "55791a3f7bb5cdd1b7a44aa5ad89ff37a08daad30f971e3e349f63fef62e316b",
+      "source_page": "https://www.flickr.com/photos/67896390@N03/53513571524",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 1.3714522538066376e-05,
+      "score": 0.9999862909317017
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260658090-7271.jpg",
+      "sha256": "5218e2a166add7cb3a3f21a1dbefbb7ff16f42d82147961fe6abdf15613f44fa",
+      "group": "5218e2a166add7cb3a3f21a1dbefbb7ff16f42d82147961fe6abdf15613f44fa",
+      "source_page": "https://www.flickr.com/photos/67896390@N03/53513424313",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 8.928860495416302e-08,
+      "score": 0.9999998807907104
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260658517-3978.jpg",
+      "sha256": "472abcea6b7d80a0ac38ca378f68594a666891f62f518d36aedb0b7e72ae2fd7",
+      "group": "472abcea6b7d80a0ac38ca378f68594a666891f62f518d36aedb0b7e72ae2fd7",
+      "source_page": "https://www.flickr.com/photos/148735266@N06/53456011431",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.02642376348376274,
+      "score": 0.9735761880874634
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260658604-4684.jpg",
+      "sha256": "418b9a00e0ada558d5e0d582b59a27172ca8f5bb1684a987fd0986983cb23d05",
+      "group": "418b9a00e0ada558d5e0d582b59a27172ca8f5bb1684a987fd0986983cb23d05",
+      "source_page": "https://www.flickr.com/photos/67896390@N03/53513423738",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 4.811853138164679e-09,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759260679063-9296.jpg",
+      "sha256": "48e7a54aaaab876f651a4962e7f98c02dcb2131cd4662589b559ee90b41b94c4",
+      "group": "48e7a54aaaab876f651a4962e7f98c02dcb2131cd4662589b559ee90b41b94c4",
+      "source_page": "https://www.flickr.com/photos/66402693@N00/53423138139",
+      "label": 0,
+      "prediction": 1,
+      "smiski_score": 0.9027463793754578,
+      "score": 0.9027463793754578
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261135514-2038.jpg",
+      "sha256": "3f6b3a4f5a27f00287028d4a7ad80f6b55a95bc55ff8c84ea1e6228f21a24397",
+      "group": "3f6b3a4f5a27f00287028d4a7ad80f6b55a95bc55ff8c84ea1e6228f21a24397",
+      "source_page": "https://www.flickr.com/photos/199071102@N05/53194632261",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.00395278912037611,
+      "score": 0.9960471987724304
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261137049-3358.jpg",
+      "sha256": "3e84361afabb9abc5372d09e4a51d3e34350b4c5812db33560bcc2393e18c92e",
+      "group": "3e84361afabb9abc5372d09e4a51d3e34350b4c5812db33560bcc2393e18c92e",
+      "source_page": "https://www.flickr.com/photos/63595140@N07/53190621322",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.000346122746123001,
+      "score": 0.9996539354324341
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261139204-2277.jpg",
+      "sha256": "eea11dafbe324bf9b9437de360e3019241ff899970a036cdaebab12ca21447fb",
+      "group": "eea11dafbe324bf9b9437de360e3019241ff899970a036cdaebab12ca21447fb",
+      "source_page": "https://www.flickr.com/photos/63595140@N07/53117295047",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0012304121628403664,
+      "score": 0.9987695813179016
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261149212-2008.jpg",
+      "sha256": "f52de069270714946a94a1773e474f12f05f13b23d65db0f8ea56d55fc532b14",
+      "group": "f52de069270714946a94a1773e474f12f05f13b23d65db0f8ea56d55fc532b14",
+      "source_page": "https://www.flickr.com/photos/197478588@N02/52707604779",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.000125864491565153,
+      "score": 0.9998741149902344
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261149636-6327.jpg",
+      "sha256": "eecbe3e659fb495ef6a8ba4e17e9b543f3e7d833da99796dd6aa6ab7d394439f",
+      "group": "eecbe3e659fb495ef6a8ba4e17e9b543f3e7d833da99796dd6aa6ab7d394439f",
+      "source_page": "https://www.flickr.com/photos/197478588@N02/52707355071",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 2.8350146749289706e-05,
+      "score": 0.9999716281890869
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261154985-6921.jpg",
+      "sha256": "68ad3611b47cb51a16851c0ed3a868cbb423073e362abb0884ac0cbe3ee98729",
+      "group": "68ad3611b47cb51a16851c0ed3a868cbb423073e362abb0884ac0cbe3ee98729",
+      "source_page": "https://www.flickr.com/photos/94380433@N05/52621603879",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0004600477695930749,
+      "score": 0.9995399713516235
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261155550-5935.jpg",
+      "sha256": "ac45140c2788d6ffcbc4bd12cee98bd31e8246415fcf9c9c3465268e384109a6",
+      "group": "ac45140c2788d6ffcbc4bd12cee98bd31e8246415fcf9c9c3465268e384109a6",
+      "source_page": "https://www.flickr.com/photos/94380433@N05/52635728194",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0004991521709598601,
+      "score": 0.9995008707046509
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261157366-6899.jpg",
+      "sha256": "5f565179b77f41d97b71379ff7307d00a0eae20b02d496ff1223de8112b64fe4",
+      "group": "5f565179b77f41d97b71379ff7307d00a0eae20b02d496ff1223de8112b64fe4",
+      "source_page": "https://www.flickr.com/photos/80806509@N04/52503220474",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.013395072892308235,
+      "score": 0.9866048693656921
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261157382-7817.jpg",
+      "sha256": "0d1033851ee43bdf92e31ae1936f6544e7f2df3e04aeb109cc104be6b694e9e6",
+      "group": "0d1033851ee43bdf92e31ae1936f6544e7f2df3e04aeb109cc104be6b694e9e6",
+      "source_page": "https://www.flickr.com/photos/94380433@N05/52677426593",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.007192245218902826,
+      "score": 0.9928077459335327
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261158104-6184.jpg",
+      "sha256": "00312b10233b1758607f40e3eac47f74a37332d8d78546e60e43b4bd1cb2ee78",
+      "group": "00312b10233b1758607f40e3eac47f74a37332d8d78546e60e43b4bd1cb2ee78",
+      "source_page": "https://www.flickr.com/photos/63595140@N07/52368978173",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.000778063025791198,
+      "score": 0.999221920967102
+    },
+    {
+      "path": "non_smiski/sonny-angel-1759261161845-5781.jpg",
+      "sha256": "bd122f569b79668d2866b2b9c257a0b7ac7a98c51426c448181aa5fe5b70445f",
+      "group": "bd122f569b79668d2866b2b9c257a0b7ac7a98c51426c448181aa5fe5b70445f",
+      "source_page": "https://www.flickr.com/photos/94380433@N05/52790940034",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.1220523055708327e-07,
+      "score": 0.9999996423721313
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261162624-4823.jpg",
+      "sha256": "ccf10e9bf3d161490d0ca2f79b83a5a2eac404e598194b57e6a3c1355c555c78",
+      "group": "ccf10e9bf3d161490d0ca2f79b83a5a2eac404e598194b57e6a3c1355c555c78",
+      "source_page": "https://www.flickr.com/photos/83894187@N04/54816333241",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0004613205965142697,
+      "score": 0.9995386600494385
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261167736-5284.jpg",
+      "sha256": "5f1f4dbb58f22d8940a7ba3453ca3a11c49715301300bd33f720da09988ec33f",
+      "group": "5f1f4dbb58f22d8940a7ba3453ca3a11c49715301300bd33f720da09988ec33f",
+      "source_page": "https://www.flickr.com/photos/83894187@N04/54816332796",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 4.077740231878124e-05,
+      "score": 0.9999592304229736
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261168330-3901.jpg",
+      "sha256": "ecf66e26c858d0b07f9afd6fd5b004a34ab4461c6eb15fc61b42030c6a8c9196",
+      "group": "ecf66e26c858d0b07f9afd6fd5b004a34ab4461c6eb15fc61b42030c6a8c9196",
+      "source_page": "https://www.flickr.com/photos/83894187@N04/54815483332",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 7.07332364981994e-05,
+      "score": 0.9999293088912964
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261172606-6788.jpg",
+      "sha256": "bf5112fc5af76f94110dc9152398d051a5c7a881aec88e1c9c3f02ac3b56477e",
+      "group": "bf5112fc5af76f94110dc9152398d051a5c7a881aec88e1c9c3f02ac3b56477e",
+      "source_page": "https://www.flickr.com/photos/83894187@N04/54815483307",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.003960190806537867,
+      "score": 0.9960397481918335
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261177209-2838.jpg",
+      "sha256": "10e59407ce79707558b931e4493be34d8069e8c52ef5bc6a8cf2600f4aa5cef9",
+      "group": "10e59407ce79707558b931e4493be34d8069e8c52ef5bc6a8cf2600f4aa5cef9",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54792717545",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 5.68383848076337e-06,
+      "score": 0.9999942779541016
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261177534-6070.jpg",
+      "sha256": "0b022eacfcc34872ea28aae9d235dd7d55facb6676acc562ec013b8fceaffd98",
+      "group": "0b022eacfcc34872ea28aae9d235dd7d55facb6676acc562ec013b8fceaffd98",
+      "source_page": "https://www.flickr.com/photos/28277802@N00/54804787620",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 4.711394285550341e-05,
+      "score": 0.9999529123306274
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261180019-3221.jpg",
+      "sha256": "87faa53278b1a0cf92149543ba4bb3aa52a5043ebde5a13f2d461adf148af868",
+      "group": "87faa53278b1a0cf92149543ba4bb3aa52a5043ebde5a13f2d461adf148af868",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54781309275",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 7.211088615122208e-08,
+      "score": 0.9999998807907104
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261182047-1415.jpg",
+      "sha256": "1864195e96a7e0ce654f0521176b07a0c297c87c02fd155f03720ed82ccb368c",
+      "group": "1864195e96a7e0ce654f0521176b07a0c297c87c02fd155f03720ed82ccb368c",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54774005572",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0004297368286643177,
+      "score": 0.9995703101158142
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261183511-6648.jpg",
+      "sha256": "46beb929a9aea99d04222d8e65f7c08aa4372ce38a792d0a57b8a6db1fc7ec09",
+      "group": "46beb929a9aea99d04222d8e65f7c08aa4372ce38a792d0a57b8a6db1fc7ec09",
+      "source_page": "https://www.flickr.com/photos/142019185@N05/54766802530",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.16386348009109497,
+      "score": 0.836136519908905
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261189568-6099.jpg",
+      "sha256": "8fa32b4b9d72a2d4c80dc9c6dd3b51d49906a7a72a036ca5e5369fe75a0031b8",
+      "group": "8fa32b4b9d72a2d4c80dc9c6dd3b51d49906a7a72a036ca5e5369fe75a0031b8",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54762043830",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 7.454964361386374e-07,
+      "score": 0.9999992847442627
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261192508-4353.jpg",
+      "sha256": "585719b9c9ec769d27dad1948f40f73a1318a690b4f6038674eab83dee8a6fd7",
+      "group": "585719b9c9ec769d27dad1948f40f73a1318a690b4f6038674eab83dee8a6fd7",
+      "source_page": "https://www.flickr.com/photos/28358193@N07/54758813681",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.011311081238090992,
+      "score": 0.9886888861656189
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261203051-5820.jpg",
+      "sha256": "a174ce7d54ea8cffe81a3f832b56b272873918e6fa70001ffa684435cd2474d6",
+      "group": "a174ce7d54ea8cffe81a3f832b56b272873918e6fa70001ffa684435cd2474d6",
+      "source_page": "https://www.flickr.com/photos/7815007@N07/54755503863",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.09975020587444305,
+      "score": 0.9002498388290405
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261203802-2033.jpg",
+      "sha256": "c73fc080ffe5ace6f41a646c6edb22b45e619ad6368a69b20245b044d533f597",
+      "group": "c73fc080ffe5ace6f41a646c6edb22b45e619ad6368a69b20245b044d533f597",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54751305063",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.6126136819802923e-06,
+      "score": 0.9999964237213135
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261216633-7122.jpg",
+      "sha256": "0cfbb6cd1d3b9d2b62b8fd67eb38304ad85f75039d0a5dbce00e354f0235e178",
+      "group": "0cfbb6cd1d3b9d2b62b8fd67eb38304ad85f75039d0a5dbce00e354f0235e178",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54734485739",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.635091021052771e-15,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261218891-9553.jpg",
+      "sha256": "0368fb3af84333ef5f139bf875f3cb01dc80bed31c6a2d9439be28f8b048f841",
+      "group": "0368fb3af84333ef5f139bf875f3cb01dc80bed31c6a2d9439be28f8b048f841",
+      "source_page": "https://www.flickr.com/photos/159218827@N08/54722347203",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 4.9184640374733135e-05,
+      "score": 0.9999507665634155
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261224004-8431.jpg",
+      "sha256": "43a0be4f3a1f6109902d5f08f6b05c0cc25a85577116b991b10c7926685ed8af",
+      "group": "43a0be4f3a1f6109902d5f08f6b05c0cc25a85577116b991b10c7926685ed8af",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54708858725",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 2.1731290100746037e-09,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261226082-5088.jpg",
+      "sha256": "ec386bc108fb76c7bfde8f719ecd1092ed601394ca8e2d5337d0801a9e096a10",
+      "group": "ec386bc108fb76c7bfde8f719ecd1092ed601394ca8e2d5337d0801a9e096a10",
+      "source_page": "https://www.flickr.com/photos/201674066@N05/54708028224",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0018976895371451974,
+      "score": 0.9981023669242859
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261233215-8258.jpg",
+      "sha256": "510c6a248b63b0564de7bf51cfe74d71470aff1822332a0ca6a04cf64e3d9e9a",
+      "group": "510c6a248b63b0564de7bf51cfe74d71470aff1822332a0ca6a04cf64e3d9e9a",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54704410896",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 1.587835107841329e-08,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261240163-1703.jpg",
+      "sha256": "572edcf64d03dfcb0dcd0f4d5dd1bb306cdca8f7ad5207d0b9e955d76b9c5552",
+      "group": "572edcf64d03dfcb0dcd0f4d5dd1bb306cdca8f7ad5207d0b9e955d76b9c5552",
+      "source_page": "https://www.flickr.com/photos/78051834@N00/54696524840",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 4.3826130422530696e-05,
+      "score": 0.9999561309814453
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261244683-5301.jpg",
+      "sha256": "aeee7014e563861bf009991dbd3cb76ec877a0e510ad5fe9763cb60f74b086e6",
+      "group": "aeee7014e563861bf009991dbd3cb76ec877a0e510ad5fe9763cb60f74b086e6",
+      "source_page": "https://www.flickr.com/photos/199529372@N05/54692001099",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.017625687643885612,
+      "score": 0.9823743104934692
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261245218-1792.jpg",
+      "sha256": "eb0c2c4af3f274843612756ad7d3703e352b75017e3b661269d186e132a10e0b",
+      "group": "eb0c2c4af3f274843612756ad7d3703e352b75017e3b661269d186e132a10e0b",
+      "source_page": "https://www.flickr.com/photos/201655812@N05/54690489419",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 1.1221605745959096e-05,
+      "score": 0.9999887943267822
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261248113-7761.jpg",
+      "sha256": "c73fa2850bea36788e2a62bf9b46b8aa7527e3c764c0cd8eac40ac5d48a0e14c",
+      "group": "c73fa2850bea36788e2a62bf9b46b8aa7527e3c764c0cd8eac40ac5d48a0e14c",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54687924628",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.00029282597824931145,
+      "score": 0.9997071623802185
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261249587-4739.jpg",
+      "sha256": "66b5a5611d675c830072b1daf956812ff0edfd83134d5a7bcbcbc1558574616d",
+      "group": "66b5a5611d675c830072b1daf956812ff0edfd83134d5a7bcbcbc1558574616d",
+      "source_page": "https://www.flickr.com/photos/69506664@N06/54708584657",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.006476393900811672,
+      "score": 0.9935235977172852
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261250939-3056.jpg",
+      "sha256": "ada5fc5741305bd9733b38e8ca5e6189f1bf4c37970249035c45df839332c503",
+      "group": "ada5fc5741305bd9733b38e8ca5e6189f1bf4c37970249035c45df839332c503",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54676181997",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 4.474181423574919e-06,
+      "score": 0.9999954700469971
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261252581-1827.jpg",
+      "sha256": "777dc62c8b5ce17bed94f62a1d16f0e1a966d0113f84b2647aabcb97a7bf2be2",
+      "group": "777dc62c8b5ce17bed94f62a1d16f0e1a966d0113f84b2647aabcb97a7bf2be2",
+      "source_page": "https://www.flickr.com/photos/201674066@N05/54674134861",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0037390703801065683,
+      "score": 0.996260941028595
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261253421-8684.jpg",
+      "sha256": "c61993caf2edc0565706de290a1a51dbfbbf3e7120d8d13bf0ace345982d7ca8",
+      "group": "c61993caf2edc0565706de290a1a51dbfbbf3e7120d8d13bf0ace345982d7ca8",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54676041222",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.157245771490125e-07,
+      "score": 0.9999996423721313
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261256048-3329.jpg",
+      "sha256": "b53c381643fc0579fda5811272a5dd66a4c8ecdc4631de308e9bfdd1fdf7cd10",
+      "group": "b53c381643fc0579fda5811272a5dd66a4c8ecdc4631de308e9bfdd1fdf7cd10",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54663043912",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.009107847698032856,
+      "score": 0.9908921718597412
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261340697-6341.jpg",
+      "sha256": "59d9bcd66063f969715324804eaea3c83298e4d177c8492fcb920fef5b8cc87f",
+      "group": "59d9bcd66063f969715324804eaea3c83298e4d177c8492fcb920fef5b8cc87f",
+      "source_page": "https://www.flickr.com/photos/202601807@N06/54644466647",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 4.437840289028827e-06,
+      "score": 0.9999955892562866
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261341148-7227.jpg",
+      "sha256": "d320b0777f0a44eab43d264534ade0281dd647b3a60ccdc43eed9780ad272c33",
+      "group": "d320b0777f0a44eab43d264534ade0281dd647b3a60ccdc43eed9780ad272c33",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54644422981",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 9.3634527215114e-12,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261343121-2881.jpg",
+      "sha256": "15666d4c1210234b6919e4e27002f186a7885ce3242b7f0cdd329982645587f4",
+      "group": "15666d4c1210234b6919e4e27002f186a7885ce3242b7f0cdd329982645587f4",
+      "source_page": "https://www.flickr.com/photos/201674066@N05/54638739517",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 4.471794454730116e-05,
+      "score": 0.9999552965164185
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261345927-6922.jpg",
+      "sha256": "ea97df7be8d881a8002d09772e58d66ae1ce386526a4c7f072409375115c0183",
+      "group": "ea97df7be8d881a8002d09772e58d66ae1ce386526a4c7f072409375115c0183",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54631697328",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 6.790157325298196e-11,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261347510-8017.jpg",
+      "sha256": "03e1a48aaf4e269b25d292d312bd50545c089a59b69300fde149a5625dde66f5",
+      "group": "03e1a48aaf4e269b25d292d312bd50545c089a59b69300fde149a5625dde66f5",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54629277206",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 6.677736141824653e-11,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261351853-8325.jpg",
+      "sha256": "d1556f7c4d59c6c0b5764dd6fc8482b2080239fa6119ec617c9239cb9bde34c7",
+      "group": "d1556f7c4d59c6c0b5764dd6fc8482b2080239fa6119ec617c9239cb9bde34c7",
+      "source_page": "https://www.flickr.com/photos/99781220@N00/54619848413",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 9.876740477920976e-06,
+      "score": 0.9999901056289673
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261353944-1265.jpg",
+      "sha256": "dadb40999344c59f2cac498c2a8f16e6fcab0a043c1313468199f1a67d28b6e9",
+      "group": "dadb40999344c59f2cac498c2a8f16e6fcab0a043c1313468199f1a67d28b6e9",
+      "source_page": "https://www.flickr.com/photos/99781220@N00/54619848068",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 8.47819319460541e-05,
+      "score": 0.9999152421951294
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261354199-4076.jpg",
+      "sha256": "2d8903af192beeaa613c47f56c94f0b4fedeb847243d26fca98a59ddcf920880",
+      "group": "2d8903af192beeaa613c47f56c94f0b4fedeb847243d26fca98a59ddcf920880",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54616093911",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 7.111403910187164e-09,
+      "score": 1.0
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261354515-5341.jpg",
+      "sha256": "ff0802d9c20c647d25a3d0406da1c5f85fa30f1e45f08351a0c379cc3562b8d7",
+      "group": "ff0802d9c20c647d25a3d0406da1c5f85fa30f1e45f08351a0c379cc3562b8d7",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54617358357",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.2236907827609684e-06,
+      "score": 0.9999967813491821
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261355071-5018.jpg",
+      "sha256": "0fe972fccad99c2e458acd25037812274ab2eb7f3531fe1bc5b3499a7d068862",
+      "group": "0fe972fccad99c2e458acd25037812274ab2eb7f3531fe1bc5b3499a7d068862",
+      "source_page": "https://www.flickr.com/photos/202679377@N02/54605611828",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.00018595447181724012,
+      "score": 0.9998140931129456
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261355628-2258.jpg",
+      "sha256": "1263a4b393163dda8e2803d13de27876b9d0015c2678fd8e13f3e3d107e3b57c",
+      "group": "1263a4b393163dda8e2803d13de27876b9d0015c2678fd8e13f3e3d107e3b57c",
+      "source_page": "https://www.flickr.com/photos/41315423@N00/54603194319",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.027129055932164192,
+      "score": 0.972870945930481
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261358479-1282.jpg",
+      "sha256": "c51405152a181e819fd4b06ac372fe8d91c336768eb7b385d1e641a1fc4c58ab",
+      "group": "c51405152a181e819fd4b06ac372fe8d91c336768eb7b385d1e641a1fc4c58ab",
+      "source_page": "https://www.flickr.com/photos/58526667@N00/54590423381",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 7.031854329397902e-05,
+      "score": 0.999929666519165
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261360262-4259.jpg",
+      "sha256": "d54d1638c52b26db45037162d45eedfc65f792c78205bf16d1dc93cc5ed746b6",
+      "group": "d54d1638c52b26db45037162d45eedfc65f792c78205bf16d1dc93cc5ed746b6",
+      "source_page": "https://www.flickr.com/photos/199335239@N07/54620862902",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.2441827654838562,
+      "score": 0.7558172941207886
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261363985-3809.jpg",
+      "sha256": "ae3b2136b09f13de72b6053d53ed7d19488394dfb4d782cd462221c7e9b59c87",
+      "group": "ae3b2136b09f13de72b6053d53ed7d19488394dfb4d782cd462221c7e9b59c87",
+      "source_page": "https://www.flickr.com/photos/201674066@N05/54567721845",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 3.587508399505168e-05,
+      "score": 0.9999641180038452
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261366217-1611.jpg",
+      "sha256": "f6a2263e0946eab17b60204f8424b406554b92a81f436ad76b5bd55c94b40371",
+      "group": "f6a2263e0946eab17b60204f8424b406554b92a81f436ad76b5bd55c94b40371",
+      "source_page": "https://www.flickr.com/photos/201674066@N05/54562413071",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0001673034712439403,
+      "score": 0.9998326301574707
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261469396-3901.jpg",
+      "sha256": "218f71e425cd76c959b00ce976d12182dcbaa3ca14727976cac21947512140fe",
+      "group": "218f71e425cd76c959b00ce976d12182dcbaa3ca14727976cac21947512140fe",
+      "source_page": "https://www.flickr.com/photos/157331860@N03/54553894944",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.018938863649964333,
+      "score": 0.9810611009597778
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261566677-9205.jpg",
+      "sha256": "b74913b60e95f67c8bd86b5b0218d6bf71d88c019b8aeab1a79276b066baf2fd",
+      "group": "b74913b60e95f67c8bd86b5b0218d6bf71d88c019b8aeab1a79276b066baf2fd",
+      "source_page": "https://www.flickr.com/photos/157331860@N03/54554051190",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.00024567919899709523,
+      "score": 0.9997543692588806
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261645811-9779.jpg",
+      "sha256": "ff04f6dd73071a9b57bdadb074b73e4150128be33e9bdb313ca23bccea420727",
+      "group": "ff04f6dd73071a9b57bdadb074b73e4150128be33e9bdb313ca23bccea420727",
+      "source_page": "https://www.flickr.com/photos/157331860@N03/54554044945",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0013110876316204667,
+      "score": 0.9986888766288757
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261664134-1374.jpg",
+      "sha256": "3ceadf188f48da4e909c30a44bfdcc0d2fad9d63f98634666805f4132c56310e",
+      "group": "3ceadf188f48da4e909c30a44bfdcc0d2fad9d63f98634666805f4132c56310e",
+      "source_page": "https://www.flickr.com/photos/157331860@N03/54554044700",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 8.34425645734882e-06,
+      "score": 0.9999916553497314
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261682550-9558.jpg",
+      "sha256": "c5b23ade59eb4b9257c7db2bbb071a9240bfbd5cf139d8fc12d9cde9de54460b",
+      "group": "c5b23ade59eb4b9257c7db2bbb071a9240bfbd5cf139d8fc12d9cde9de54460b",
+      "source_page": "https://www.flickr.com/photos/157331860@N03/54554044540",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0012722444953396916,
+      "score": 0.9987277388572693
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261712187-9888.jpg",
+      "sha256": "75129e69bc47f6246f9b465ae22f90e6b91ddd5c50e305f4a8d06cc04c8b8956",
+      "group": "75129e69bc47f6246f9b465ae22f90e6b91ddd5c50e305f4a8d06cc04c8b8956",
+      "source_page": "https://www.flickr.com/photos/132352906@N08/54550316444",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.0006858183769509196,
+      "score": 0.9993141889572144
+    },
+    {
+      "path": "non_smiski/toy-figurine-1759261722125-7307.jpg",
+      "sha256": "4302a4ea3637667c618bf1b84a286136af757183c352edae0234e53a536007ed",
+      "group": "4302a4ea3637667c618bf1b84a286136af757183c352edae0234e53a536007ed",
+      "source_page": "https://www.flickr.com/photos/157331860@N03/54553703366",
+      "label": 0,
+      "prediction": 0,
+      "smiski_score": 0.003856103168800473,
+      "score": 0.9961438179016113
+    },
+    {
+      "path": "smiski/smiski-1759088953318-6183.jpg",
+      "sha256": "9529c2051f97b1c3eddd7199b943a447e559d01a4736d9534db9f2cd6e57708a",
+      "group": "9529c2051f97b1c3eddd7199b943a447e559d01a4736d9534db9f2cd6e57708a",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8859831690788269,
+      "score": 0.8859831690788269
+    },
+    {
+      "path": "smiski/smiski-1759088953558-4744.jpg",
+      "sha256": "106c042abb3aa45a1824ae4571c4b46a7514c20e81204c95690d73fa66f1088f",
+      "group": "106c042abb3aa45a1824ae4571c4b46a7514c20e81204c95690d73fa66f1088f",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8878806829452515,
+      "score": 0.8878806829452515
+    },
+    {
+      "path": "smiski/smiski-1759088953594-8372.jpg",
+      "sha256": "10e3c3dde6266ef07c36ecffd88b65c555a2f75c33a015a1f595b0f48e1d11f1",
+      "group": "10e3c3dde6266ef07c36ecffd88b65c555a2f75c33a015a1f595b0f48e1d11f1",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9987251162528992,
+      "score": 0.9987251162528992
+    },
+    {
+      "path": "smiski/smiski-1759088956342-9221.jpg",
+      "sha256": "9d46e68044e1d856b3d308730e5dc7a9fde4218757f0bf938e42964b4eec97c3",
+      "group": "9d46e68044e1d856b3d308730e5dc7a9fde4218757f0bf938e42964b4eec97c3",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9980323910713196,
+      "score": 0.9980323910713196
+    },
+    {
+      "path": "smiski/smiski-1759088959159-5895.jpg",
+      "sha256": "04fa2e6b7242e716ee8214bbddd3fe36a15c3acdbd87a2cf3a6e726a764f25dc",
+      "group": "04fa2e6b7242e716ee8214bbddd3fe36a15c3acdbd87a2cf3a6e726a764f25dc",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.95228511095047,
+      "score": 0.95228511095047
+    },
+    {
+      "path": "smiski/smiski-1759088960174-9730.jpg",
+      "sha256": "8dd656c49ef3d8230f01ff6a67c207f89d665fd7712f89b3f67ec408cebc472d",
+      "group": "8dd656c49ef3d8230f01ff6a67c207f89d665fd7712f89b3f67ec408cebc472d",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8611697554588318,
+      "score": 0.8611697554588318
+    },
+    {
+      "path": "smiski/smiski-1759088962093-7536.jpg",
+      "sha256": "f9232a445f11a16f68055418f30150ddfcbd0b8111fb367885299c84b2c4f3b9",
+      "group": "f9232a445f11a16f68055418f30150ddfcbd0b8111fb367885299c84b2c4f3b9",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9391634464263916,
+      "score": 0.9391634464263916
+    },
+    {
+      "path": "smiski/smiski-1759088963001-9692.jpg",
+      "sha256": "dba5d031accacdf9c30be38163f02c5832eb18afbe27695e58918382d58b5814",
+      "group": "dba5d031accacdf9c30be38163f02c5832eb18afbe27695e58918382d58b5814",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8230838179588318,
+      "score": 0.8230838179588318
+    },
+    {
+      "path": "smiski/smiski-1759088964197-6932.jpg",
+      "sha256": "db48a9ccd06aed46d5a82b8630bb53e8ed0e201247a505633ac73fab825e5a35",
+      "group": "db48a9ccd06aed46d5a82b8630bb53e8ed0e201247a505633ac73fab825e5a35",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7948192358016968,
+      "score": 0.7948192358016968
+    },
+    {
+      "path": "smiski/smiski-1759088964752-5737.jpg",
+      "sha256": "e6052f3bd3bfb0824ea5c3e63baa1b51f84896d93fc7b6d16c455a4bc2ca7dc3",
+      "group": "e6052f3bd3bfb0824ea5c3e63baa1b51f84896d93fc7b6d16c455a4bc2ca7dc3",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7951979041099548,
+      "score": 0.7951979041099548
+    },
+    {
+      "path": "smiski/smiski-1759088964979-4046.jpg",
+      "sha256": "af6b5342769c08d2d5a2f923a81b007a1ae16131d83c6ed26a3a1dfd1eeba1bd",
+      "group": "af6b5342769c08d2d5a2f923a81b007a1ae16131d83c6ed26a3a1dfd1eeba1bd",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.6448356509208679,
+      "score": 0.6448356509208679
+    },
+    {
+      "path": "smiski/smiski-1759088966442-5260.jpg",
+      "sha256": "686fddceabe4e1d6a45a968014ae877b417a0e56ba3229cf03df8fd8a3f20400",
+      "group": "686fddceabe4e1d6a45a968014ae877b417a0e56ba3229cf03df8fd8a3f20400",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8539299368858337,
+      "score": 0.8539299368858337
+    },
+    {
+      "path": "smiski/smiski-1759088967316-6157.jpg",
+      "sha256": "42ddc763eb4069054a2aa685fce264718ed747716f4748cc6e44cb68b5eea6f8",
+      "group": "42ddc763eb4069054a2aa685fce264718ed747716f4748cc6e44cb68b5eea6f8",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7277129888534546,
+      "score": 0.7277129888534546
+    },
+    {
+      "path": "smiski/smiski-1759088967504-2015.jpg",
+      "sha256": "a6219c2ef27dec53748f0a675d387085635ac5643c3674962ab91e80437c55cc",
+      "group": "a6219c2ef27dec53748f0a675d387085635ac5643c3674962ab91e80437c55cc",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8219081163406372,
+      "score": 0.8219081163406372
+    },
+    {
+      "path": "smiski/smiski-1759088968792-9235.jpg",
+      "sha256": "d87ac836cc765d536f5fc8a1db72b0fb4019d904650cacd03a67a2748c5347f9",
+      "group": "d87ac836cc765d536f5fc8a1db72b0fb4019d904650cacd03a67a2748c5347f9",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.6809046268463135,
+      "score": 0.6809046268463135
+    },
+    {
+      "path": "smiski/smiski-1759088969013-9975.jpg",
+      "sha256": "8725fa12af07662e51d0c25dd7930c6cb73ed6b6e94e0e2885d1b3619ffb442e",
+      "group": "8725fa12af07662e51d0c25dd7930c6cb73ed6b6e94e0e2885d1b3619ffb442e",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7432104349136353,
+      "score": 0.7432104349136353
+    },
+    {
+      "path": "smiski/smiski-1759088969589-6447.jpg",
+      "sha256": "0b6edca5b2cc6ceb2f5a761874715e850e6e88bf74f9c8672b7c5316304dd51c",
+      "group": "0b6edca5b2cc6ceb2f5a761874715e850e6e88bf74f9c8672b7c5316304dd51c",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9048895239830017,
+      "score": 0.9048895239830017
+    },
+    {
+      "path": "smiski/smiski-1759088969805-4351.jpg",
+      "sha256": "0661de50113e687c19e0d11fe281841335084729a0c32393e5060b95af89e819",
+      "group": "0661de50113e687c19e0d11fe281841335084729a0c32393e5060b95af89e819",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8069039583206177,
+      "score": 0.8069039583206177
+    },
+    {
+      "path": "smiski/smiski-1759088970065-7774.jpg",
+      "sha256": "65d1bff52181912eb6684efc594c77f06c948003ba3f1561ec2c280f7aefeff3",
+      "group": "65d1bff52181912eb6684efc594c77f06c948003ba3f1561ec2c280f7aefeff3",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8787016868591309,
+      "score": 0.8787016868591309
+    },
+    {
+      "path": "smiski/smiski-1759088974826-2169.jpg",
+      "sha256": "5a7d8cd56ea25fa6a7404f113b7ada8cfa74aa74d08706ddbb2a5f8724781787",
+      "group": "5a7d8cd56ea25fa6a7404f113b7ada8cfa74aa74d08706ddbb2a5f8724781787",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7837343215942383,
+      "score": 0.7837343215942383
+    },
+    {
+      "path": "smiski/smiski-1759088979790-9734.jpg",
+      "sha256": "f9fbe1127dd7a2648c2c96470e974d75da81bf4290c77d37df0ecec7a69bb958",
+      "group": "f9fbe1127dd7a2648c2c96470e974d75da81bf4290c77d37df0ecec7a69bb958",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7114455103874207,
+      "score": 0.7114455103874207
+    },
+    {
+      "path": "smiski/smiski-1759088981638-5464.jpg",
+      "sha256": "55f2745c23c5502ffb0ef06b900b478b6fb5b864272d31a07d0ae395e1a41aa2",
+      "group": "55f2745c23c5502ffb0ef06b900b478b6fb5b864272d31a07d0ae395e1a41aa2",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8622276186943054,
+      "score": 0.8622276186943054
+    },
+    {
+      "path": "smiski/smiski-1759088982618-4325.jpg",
+      "sha256": "19f6322ae6b047b0b33ae99620144279d4095487d0fb4e2fcac987eb53ca532a",
+      "group": "19f6322ae6b047b0b33ae99620144279d4095487d0fb4e2fcac987eb53ca532a",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7386528253555298,
+      "score": 0.7386528253555298
+    },
+    {
+      "path": "smiski/smiski-1759088982746-7963.jpg",
+      "sha256": "efa41da5957425a3825b098a966eecba1bde3271d44f1e6b69d7604e0dbf24b2",
+      "group": "efa41da5957425a3825b098a966eecba1bde3271d44f1e6b69d7604e0dbf24b2",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7089937329292297,
+      "score": 0.7089937329292297
+    },
+    {
+      "path": "smiski/smiski-1759088985008-5325.jpg",
+      "sha256": "3ec28f1b31e84ec74622c4e860252f99d8a568ab01da31f2ebe14bf565725d40",
+      "group": "3ec28f1b31e84ec74622c4e860252f99d8a568ab01da31f2ebe14bf565725d40",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7805142402648926,
+      "score": 0.7805142402648926
+    },
+    {
+      "path": "smiski/smiski-1759088986377-9071.jpg",
+      "sha256": "aeef7093f7d6fa8483f46784e9efb6c08d6ea766b94f95e10ee442795a38a45d",
+      "group": "aeef7093f7d6fa8483f46784e9efb6c08d6ea766b94f95e10ee442795a38a45d",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7183041572570801,
+      "score": 0.7183041572570801
+    },
+    {
+      "path": "smiski/smiski-1759088987554-8443.jpg",
+      "sha256": "31dbaaf4ff88b281b1487a110b74dd7d9f832e1a7e503e88a53ca241b064507c",
+      "group": "31dbaaf4ff88b281b1487a110b74dd7d9f832e1a7e503e88a53ca241b064507c",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7447524666786194,
+      "score": 0.7447524666786194
+    },
+    {
+      "path": "smiski/smiski-1759088988200-1992.jpg",
+      "sha256": "d7d32634dc5908cc03d68c45ad690249d5a6a862f606496d219fe09981425824",
+      "group": "d7d32634dc5908cc03d68c45ad690249d5a6a862f606496d219fe09981425824",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.692507266998291,
+      "score": 0.692507266998291
+    },
+    {
+      "path": "smiski/smiski-1759088991423-1767.jpg",
+      "sha256": "0a44540be076a8aa4d8ec70d61f902e0fd89d76a4cc3d841888830431edd81fa",
+      "group": "0a44540be076a8aa4d8ec70d61f902e0fd89d76a4cc3d841888830431edd81fa",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8571988344192505,
+      "score": 0.8571988344192505
+    },
+    {
+      "path": "smiski/smiski-1759088991536-1249.jpg",
+      "sha256": "a356a52a7710c43b4f51002193253ad92cc0ca3fbc898dfe64fc13634a1557e7",
+      "group": "a356a52a7710c43b4f51002193253ad92cc0ca3fbc898dfe64fc13634a1557e7",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.8567022085189819,
+      "score": 0.8567022085189819
+    },
+    {
+      "path": "smiski/smiski-1759088994566-2642.jpg",
+      "sha256": "e58167d276b1d3d8842bbd44e7eba62472de55afa164091e689e612992220364",
+      "group": "e58167d276b1d3d8842bbd44e7eba62472de55afa164091e689e612992220364",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7838069796562195,
+      "score": 0.7838069796562195
+    },
+    {
+      "path": "smiski/smiski-1759088997750-8832.jpg",
+      "sha256": "14aeeb28e188c94e6278b88dd38177dd4346ef6e210be99ca41167206082108a",
+      "group": "14aeeb28e188c94e6278b88dd38177dd4346ef6e210be99ca41167206082108a",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.7911903858184814,
+      "score": 0.7911903858184814
+    },
+    {
+      "path": "smiski/smiski-1759088998475-5009.jpg",
+      "sha256": "5f13de08372469f077c5c7ed17dcc06eb50e8ff6357a7ba70d0da0bb13beacad",
+      "group": "5f13de08372469f077c5c7ed17dcc06eb50e8ff6357a7ba70d0da0bb13beacad",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9966633915901184,
+      "score": 0.9966633915901184
+    },
+    {
+      "path": "smiski/smiski-1759088999066-5152.jpg",
+      "sha256": "11fc587f1f54d649919db9d69a1416829054688d42b1f9c4d73daeb43cdc283e",
+      "group": "11fc587f1f54d649919db9d69a1416829054688d42b1f9c4d73daeb43cdc283e",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9868676662445068,
+      "score": 0.9868676662445068
+    },
+    {
+      "path": "smiski/smiski-1759088999222-9767.jpg",
+      "sha256": "30d0510ac0ed505d5efe8a7eab2b6967c0e582fdccbffb754e349bf7c8679645",
+      "group": "30d0510ac0ed505d5efe8a7eab2b6967c0e582fdccbffb754e349bf7c8679645",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.999983549118042,
+      "score": 0.999983549118042
+    },
+    {
+      "path": "smiski/smiski-1759088999255-7874.jpg",
+      "sha256": "1079647cef5029a1cc101135c16ba2c34c35a353469ec59fa6be830bd6c9f873",
+      "group": "1079647cef5029a1cc101135c16ba2c34c35a353469ec59fa6be830bd6c9f873",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9271167516708374,
+      "score": 0.9271167516708374
+    },
+    {
+      "path": "smiski/smiski-1759088999624-4969.jpg",
+      "sha256": "16ac65218b2473094c5f75d6c6d60871cb96aca12a93f88fced5ea3ce2185020",
+      "group": "16ac65218b2473094c5f75d6c6d60871cb96aca12a93f88fced5ea3ce2185020",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9893562197685242,
+      "score": 0.9893562197685242
+    },
+    {
+      "path": "smiski/smiski-1759088999801-5555.jpg",
+      "sha256": "64c0dfed950cc5b46a7c0bed55d274219a77ded8931d489efa438fda3d92bd77",
+      "group": "64c0dfed950cc5b46a7c0bed55d274219a77ded8931d489efa438fda3d92bd77",
+      "source_page": null,
+      "label": 1,
+      "prediction": 0,
+      "smiski_score": 0.30706626176834106,
+      "score": 0.6929337382316589
+    },
+    {
+      "path": "smiski/smiski-1759088999961-9271.jpg",
+      "sha256": "3192dd572a12207cd675824e030738b209e9ead40465e4518700650fb253c059",
+      "group": "3192dd572a12207cd675824e030738b209e9ead40465e4518700650fb253c059",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9999872446060181,
+      "score": 0.9999872446060181
+    },
+    {
+      "path": "smiski/smiski-1759089000134-2143.jpg",
+      "sha256": "e0494af519e07c073fa895a997eaeed2b3d01ca19fb48f82e6e78d3623068697",
+      "group": "e0494af519e07c073fa895a997eaeed2b3d01ca19fb48f82e6e78d3623068697",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9999384880065918,
+      "score": 0.9999384880065918
+    },
+    {
+      "path": "smiski/smiski-1759089000225-6789.jpg",
+      "sha256": "2e950d3ad6c633d1b398b3fd4c945bc10e16c16b20d50aecb7cb6c1b445c4311",
+      "group": "2e950d3ad6c633d1b398b3fd4c945bc10e16c16b20d50aecb7cb6c1b445c4311",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9988572597503662,
+      "score": 0.9988572597503662
+    },
+    {
+      "path": "smiski/smiski-1759089000259-6682.jpg",
+      "sha256": "3d9af78d39df952c4a567ca56fce540a93e7f88bf1aa9bca5bd00ed123a3aafc",
+      "group": "3d9af78d39df952c4a567ca56fce540a93e7f88bf1aa9bca5bd00ed123a3aafc",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9999860525131226,
+      "score": 0.9999860525131226
+    },
+    {
+      "path": "smiski/smiski-1759089000331-9414.jpg",
+      "sha256": "9b1e6d016492e664d4fec2290ab9817dedb8d33183d94412d27021eec8655891",
+      "group": "9b1e6d016492e664d4fec2290ab9817dedb8d33183d94412d27021eec8655891",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9996092915534973,
+      "score": 0.9996092915534973
+    },
+    {
+      "path": "smiski/smiski-1759089000348-9166.jpg",
+      "sha256": "debb42f00d3dc7456694d2f87f9f3f5ef367bed997a86406c0e76f80a37e20a5",
+      "group": "debb42f00d3dc7456694d2f87f9f3f5ef367bed997a86406c0e76f80a37e20a5",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9970383644104004,
+      "score": 0.9970383644104004
+    },
+    {
+      "path": "smiski/smiski-1759089000615-5388.jpg",
+      "sha256": "8a1b923adc8d81d43b5a301d9c26b268529621e486d91a53deaf0d2a95bf7e90",
+      "group": "8a1b923adc8d81d43b5a301d9c26b268529621e486d91a53deaf0d2a95bf7e90",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.6202720403671265,
+      "score": 0.6202720403671265
+    },
+    {
+      "path": "smiski/smiski-1759089000643-5024.jpg",
+      "sha256": "eaf13e750654033ba32cb3d96ee35a8358e722cff4a3a75acd8e7d869e717cbc",
+      "group": "eaf13e750654033ba32cb3d96ee35a8358e722cff4a3a75acd8e7d869e717cbc",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9999377727508545,
+      "score": 0.9999377727508545
+    },
+    {
+      "path": "smiski/smiski-1759089000742-2438.jpg",
+      "sha256": "bf11c1a16460e90049ab8a29c5cc0f1be0b22de2b86a11d7c3f687278b390515",
+      "group": "bf11c1a16460e90049ab8a29c5cc0f1be0b22de2b86a11d7c3f687278b390515",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.999950647354126,
+      "score": 0.999950647354126
+    },
+    {
+      "path": "smiski/smiski-1759089000965-7940.jpg",
+      "sha256": "d82af221647ad79d88bfb98bab152876586659c8aecbcc9858085c07dba229ae",
+      "group": "d82af221647ad79d88bfb98bab152876586659c8aecbcc9858085c07dba229ae",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9999608993530273,
+      "score": 0.9999608993530273
+    },
+    {
+      "path": "smiski/smiski-1759089001227-9864.jpg",
+      "sha256": "a4f4ce24614004c11b92b90048e1f29ffe61fd7437cfa73f5e089c589b461e72",
+      "group": "a4f4ce24614004c11b92b90048e1f29ffe61fd7437cfa73f5e089c589b461e72",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.999982476234436,
+      "score": 0.999982476234436
+    },
+    {
+      "path": "smiski/smiski-1759089001386-5477.jpg",
+      "sha256": "068d457bda06ee976f43fbe4aa6b36625f37843e08873e285c42340329b50254",
+      "group": "068d457bda06ee976f43fbe4aa6b36625f37843e08873e285c42340329b50254",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9999099969863892,
+      "score": 0.9999099969863892
+    },
+    {
+      "path": "smiski/smiski-1759089001718-9970.jpg",
+      "sha256": "98977f127e4d167ba5b121a7b9085fc497aadd2e5a397de5e9a8b51c69cc075b",
+      "group": "98977f127e4d167ba5b121a7b9085fc497aadd2e5a397de5e9a8b51c69cc075b",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9994076490402222,
+      "score": 0.9994076490402222
+    },
+    {
+      "path": "smiski/smiski-1759089001754-5745.jpg",
+      "sha256": "317be6dd2652213b888de44e44eb158f9fe1779b868e80aece70a40d3d86a8c1",
+      "group": "317be6dd2652213b888de44e44eb158f9fe1779b868e80aece70a40d3d86a8c1",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9999959468841553,
+      "score": 0.9999959468841553
+    },
+    {
+      "path": "smiski/smiski-1759089002055-7175.jpg",
+      "sha256": "7ccf0a18a0c60653385e73039dc91733d46525faf171757f0168757338cefa07",
+      "group": "7ccf0a18a0c60653385e73039dc91733d46525faf171757f0168757338cefa07",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9999995231628418,
+      "score": 0.9999995231628418
+    },
+    {
+      "path": "smiski/smiski-1759089002157-5344.jpg",
+      "sha256": "f7629480c6f60e1a4a135eebbd3490be67af281e5f5bb15365a7d958d40b57ec",
+      "group": "f7629480c6f60e1a4a135eebbd3490be67af281e5f5bb15365a7d958d40b57ec",
+      "source_page": null,
+      "label": 1,
+      "prediction": 1,
+      "smiski_score": 0.9911522269248962,
+      "score": 0.9911522269248962
+    }
+  ]
+}

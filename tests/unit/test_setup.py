@@ -60,6 +60,20 @@ class SetupTests(unittest.TestCase):
         with self.assertRaisesRegex(FileNotFoundError, "scripts.install_model"):
             SmiskiClassifier().load(ROOT_DIR / "missing-test-checkpoint.pt")
 
+    def test_alternative_manifest_install_has_an_explicit_destination(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.pt"
+            source.write_bytes(b"alternative model")
+            manifest = root / "manifest.json"
+            manifest.write_text(json.dumps({
+                "filename": "baseline.pt", "url": None,
+                "sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+            }))
+            destination = root / "baseline.pt"
+            install_model(str(source), destination, manifest)
+            self.assertEqual(destination.read_bytes(), source.read_bytes())
+
     def test_checkpoint_can_be_downloaded_from_a_url(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

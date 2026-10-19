@@ -1,21 +1,20 @@
 import torch
-import torch.nn as nn 
-import torch.optim as optim 
-import torchvision.transforms as transforms 
+import torch.nn as nn
+import torch.optim as optim
+import torchvision.transforms as transforms
 from torchvision import models
 from torchvision.models import ResNet50_Weights
-from torch.utils.data import DataLoader, Dataset 
-from PIL import Image 
+from torch.utils.data import DataLoader, Dataset
+from PIL import Image, ImageOps
 from pathlib import Path
-from backend.helpers.load_data import load_data
 from backend.config import get_model_path
 
 BATCH_SIZE = 32
-EPOCHS = 10 
+EPOCHS = 10
 LEARNING_RATE = 0.001
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
-# data transforms 
+# data transforms
 train_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(),
@@ -24,44 +23,44 @@ train_transforms = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                         std=[0.229, 0.224, 0.225])
 ])
+# Validation and serving must use the same deterministic preprocessing.
 val_transforms = transforms.Compose([
     transforms.Resize((224, 224)),
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomRotation(10),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                        std=[0.229, 0.224, 0.225])
+                         std=[0.229, 0.224, 0.225])
 ])
 
-# custom dataset class 
+# custom dataset class
 class SmiskiDataset(Dataset):
     def __init__(self, image_paths, labels, transforms=None):
         self.image_paths = image_paths
         self.labels = labels
         self.transforms = transforms
-    
+
     def __len__(self):
         return len(self.image_paths)
 
     def __getitem__(self, index):
         img_path = self.image_paths[index]
         label = self.labels[index]
-        image = Image.open(img_path).convert("RGB")
+        with Image.open(img_path) as raw:
+            image = ImageOps.exif_transpose(raw).convert("RGB")
         if self.transforms:
             image = self.transforms(image)
         return image, label
-    
+
 class SmiskiClassifier:
     def __init__(self, device=DEVICE, model_name="resnet50", pretrained=True, lr=LEARNING_RATE, batch_size=BATCH_SIZE):
         self.device = device
         self.model_name = model_name
         self.pretrained = pretrained
-        self.lr = lr 
+        self.lr = lr
         self.batch_size = batch_size
-        
-        self.model = None 
+
+        self.model = None
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = None 
+        self.optimizer = None
 
     def build_model(self, num_classes=2, freeze_early=True, pretrained=None):
         if self.model_name == "resnet50":
@@ -72,25 +71,33 @@ class SmiskiClassifier:
 
         if freeze_early:
             for param in self.model.layer1.parameters():
-                param.requires_grad = False 
+                param.requires_grad = False
 
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
         self.model = self.model.to(self.device)
 
         self.optimizer = optim.Adam(filter(lambda p: p.requires_grad, self.model.parameters()), lr=self.lr)
 
-    def prepare_data(self, image_paths, labels, val_split=0.2, shuffle=True, random_state=42):
-        from sklearn.model_selection import train_test_split
+    def prepare_data(self, snapshot_path=None, data_dir=None, random_state=42):
+        from backend.config import ROOT_DIR
+        from backend.helpers.dataset import default_data_dir, load_snapshot
 
-        train_paths, val_paths, train_labels, val_labels = train_test_split(
-            image_paths, labels, test_size=val_split, shuffle=shuffle, random_state=random_state
-        )
-
-        train_ds = SmiskiDataset(train_paths, train_labels, transforms=train_transforms)
-        val_ds = SmiskiDataset(val_paths, val_labels, transforms=val_transforms)
-
-        self.train_loader = DataLoader(train_ds, batch_size=self.batch_size, shuffle=True)
-        self.val_loader = DataLoader(val_ds, batch_size=self.batch_size, shuffle=False)
+        data_dir = Path(data_dir) if data_dir else default_data_dir()
+        snapshot = load_snapshot(snapshot_path or ROOT_DIR / "docs/dataset/split-v1.json", data_dir)
+        generator = torch.Generator().manual_seed(random_state)
+        loaders = {}
+        for split, transform in (("train", train_transforms), ("validation", val_transforms)):
+            records = [row for row in snapshot["records"] if row["split"] == split]
+            dataset = SmiskiDataset(
+                [data_dir / row["path"] for row in records],
+                [row["label"] for row in records], transforms=transform,
+            )
+            loaders[split] = DataLoader(
+                dataset, batch_size=self.batch_size, shuffle=split == "train", generator=generator,
+            )
+        self.train_loader = loaders["train"]
+        self.val_loader = loaders["validation"]
+        self.dataset_fingerprint = snapshot["fingerprint"]
 
     def _train_epoch(self):
         self.model.train()
@@ -111,7 +118,7 @@ class SmiskiClassifier:
             total += labels.size(0)
 
         return total_loss / total, correct / total
-    
+
     def _validate_epoch(self):
         self.model.eval()
         total_loss = 0.0
@@ -129,7 +136,7 @@ class SmiskiClassifier:
                 total += labels.size(0)
 
         return total_loss / total, correct / total
-    
+
     def train(self, epochs=EPOCHS):
         if self.model is None:
             raise RuntimeError("call build_model() before train()")
@@ -137,7 +144,7 @@ class SmiskiClassifier:
             train_loss, train_acc = self._train_epoch()
             val_loss, val_acc = self._validate_epoch()
             print(f"Epoch {epoch+1}/{epochs}  Train Loss: {train_loss:.4f} Acc: {train_acc:.4f}  Val Loss: {val_loss:.4f} Acc: {val_acc:.4f}")
-    
+
     def save(self, path=None):
         path = Path(path) if path else get_model_path()
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -152,23 +159,23 @@ class SmiskiClassifier:
             )
         self.build_model(num_classes=num_classes, freeze_early=freeze_early, pretrained=False)
         self.model.load_state_dict(torch.load(path, map_location=self.device, weights_only=True))
+        self.model.eval()
 
     def predict(self, img):
+        if self.model is None:
+            raise RuntimeError("Load or build a model before prediction")
         if isinstance(img, (str, Path)):
-            img = Image.open(str(img)).convert("RGB")
-        x = val_transforms(img).unsqueeze(0).to(self.device)
+            with Image.open(img) as raw:
+                image = ImageOps.exif_transpose(raw).convert("RGB")
+        else:
+            image = ImageOps.exif_transpose(img).convert("RGB")
+        x = val_transforms(image).unsqueeze(0).to(self.device)
         self.model.eval()
         with torch.no_grad():
             out = self.model(x)
             probs = torch.softmax(out, dim=1).cpu().numpy()[0]
             pred = int(probs.argmax())
         return {"pred": pred, "probs": probs}
-    
+
 if __name__ == "__main__":
-    # quick run example
-    image_paths, labels = load_data()
-    clf = SmiskiClassifier()
-    clf.build_model()
-    clf.prepare_data(image_paths, labels)
-    clf.train()
-    clf.save()
+    raise SystemExit("Use python -m scripts.train_model --help for reproducible training.")

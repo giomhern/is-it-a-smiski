@@ -16,7 +16,8 @@ A small machine learning web app by a Smiski collector. Upload a photo to get a 
 backend/
   api/app.py             Flask API
   config.py              Repository-relative paths and environment
-  helpers/load_data.py   Dataset manifest loader
+  helpers/load_data.py   Original dataset manifest loader
+  helpers/dataset.py     Audited snapshots and duplicate-aware splits
   models/manifest.json   Checkpoint identity and SHA-256
   transfer/main.py       Classifier and training entry point
 frontend/                Next.js app
@@ -24,10 +25,23 @@ scripts/
   install_model.py       Verified checkpoint installation
   test_model.py          Single-photo prediction CLI
   download_images.py     Optional Flickr dataset downloader
+  prepare_dataset.py     Dataset audit and immutable split creation
+  train_model.py         Reproducible frozen-ImageNet baseline
+  evaluate_model.py      Metrics, confusion matrix and failure reports
 tests/                   Sample photos and setup/API smoke tests
 pyproject.toml           Python dependencies (Python 3.11)
 uv.lock                  Full Python dependency lock
 ```
+
+## Model reliability
+
+Serving and validation now use deterministic preprocessing: EXIF orientation correction, RGB, resize to 224×224, and ImageNet normalization. Repeated uploads of the same image return the same scores on the tested CPU environment.
+
+A [dataset audit](docs/dataset/README.md) quarantined 99 cross-label duplicate-group photos and removed 7 exact duplicate copies. The remaining 973 photos are split 681/146/146 into training, validation and test partitions with versioned content hashes and duplicate grouping.
+
+A freshly trained frozen-ImageNet baseline scored **94.52% accuracy, 0.9397 macro F1, and 87.04% Smiski recall** on 146 reserved test photos. These are preliminary results against imperfect folder labels, not a real-world accuracy claim. The existing default checkpoint's training history is unknown, so its evaluation is explicitly diagnostic. See the [model card](docs/MODEL_CARD.md), [baseline test report](docs/evaluation/baseline-v1.md), and [legacy diagnostic](docs/evaluation/legacy-diagnostic.md).
+
+The baseline is a separate checkpoint; the API's default remains the existing demo model. The baseline also misclassified the included Sonny Angel demo photo, a useful hard-negative failure recorded in the model card. Both checkpoints use uncalibrated softmax scores. Label review and an independently collected external test set are the next modeling work.
 
 ## Local setup
 
@@ -44,15 +58,13 @@ Keep an existing `.env` if you already have one. Real environment variables take
 
 ### 2. Install the checkpoint
 
-**The initial checkpoint is not publicly hosted yet.** A fresh clone needs a copy from the maintainer or a trusted URL hosting those exact bytes. The model manifest deliberately has no placeholder download URL.
-
-If you already have `backend/models/smiski_classifier.pt`, verify it:
+Both checkpoints are available from the [model-v1 release](https://github.com/giomhern/is-it-a-smiski/releases/tag/model-v1). Install the default checkpoint (or verify an existing copy):
 
 ```sh
 uv run --locked python -m scripts.install_model
 ```
 
-Otherwise, install a copy supplied by the maintainer:
+To install a copy you already have elsewhere:
 
 ```sh
 uv run --locked python -m scripts.install_model --source /path/to/smiski_classifier.pt
@@ -60,7 +72,7 @@ uv run --locked python -m scripts.install_model --source /path/to/smiski_classif
 
 For a hosted copy, set `MODEL_URL` in `.env` or pass an HTTPS URL to `--source`. The installer verifies the SHA-256 in `backend/models/manifest.json`, uses an atomic replacement, and leaves the existing file intact if validation fails. An already verified checkpoint requires no network access. Model loading does not download ImageNet weights.
 
-To make the fresh-clone workflow self-contained, the maintainer should upload the existing checkpoint as a GitHub Release asset, then set its permanent download URL in the manifest. See [checkpoint release instructions](docs/model-release.md). Retraining produces a different checkpoint and requires updating the manifest hash before distribution.
+The manifests contain permanent release download URLs and checksums. The [release record](docs/model-release.md) lists the assets and verification workflow. Retraining produces a different checkpoint and requires a new manifest hash before distribution.
 
 ### 3. Run the API
 
@@ -101,7 +113,7 @@ uv run --locked python -m scripts.test_model --image_path tests/smiski/test-smis
 }
 ```
 
-Values above illustrate the response schema, not an accuracy claim. These are model scores. Evaluation and calibration are still pending; the current validation/inference transform also includes random augmentation, so scores can vary between requests.
+Values above illustrate the response schema, not an accuracy claim. These are uncalibrated model scores. Inference has no random augmentation; exact repeatability is verified for repeated uploads on the tested CPU environment.
 
 ## Checks
 
@@ -142,14 +154,53 @@ uv run --locked gunicorn --bind "0.0.0.0:${PORT:-5050}" --workers 1 --timeout 12
 
 Set the frontend's `NEXT_PUBLIC_API_URL` before `npm run build`, then run `npm start`. The checkpoint loads once per worker; start with one worker and measure memory and latency before scaling. Public hosting, resource sizing, rate limits, and deployment automation are subsequent work.
 
-## Optional training
+## Reproduce training and evaluation
+
+The image collection stays outside Git; these commands require a local copy under `data/raw/` or `DATA_DIR`. The committed snapshot verifies the original bytes and fails if images have changed. Do not present a new checkpoint's test score as an independent result if you selected its settings after reviewing the existing v1 test results.
+
+```sh
+# Train only on the snapshot's training partition. Select the head using validation loss.
+# Use a separate directory so the recorded baseline stays intact.
+uv run --locked python -m scripts.train_model \
+  --output /tmp/smiski-reproduction/smiski_baseline_v1.pt
+
+# Evaluate once after selection; the metadata binds the checkpoint to its partitions.
+uv run --locked python -m scripts.evaluate_model \
+  --checkpoint /tmp/smiski-reproduction/smiski_baseline_v1.pt \
+  --output /tmp/smiski-reproduction/baseline-test.json \
+  --title "Reproduced frozen ImageNet baseline"
+
+# The older checkpoint has unknown training provenance: always diagnostic-only.
+uv run --locked python -m scripts.evaluate_model \
+  --output /tmp/smiski-reproduction/legacy-diagnostic.json
+```
+
+Training starts from torchvision's ImageNet V2 weights (downloaded on first use), freezes the backbone and trains a class-balanced linear head. It does not read test images for feature extraction or fitting. The script records hyperparameters, selected epoch, validation history, partition hashes and checkpoint SHA-256 in a `.metadata.json` sidecar. It never overwrites an existing checkpoint or metadata file. CPU threads, seeds and deterministic algorithms are configured explicitly; byte-for-byte reproducibility across different PyTorch builds/hardware is not promised.
+
+For a changed or corrected dataset, create a new immutable snapshot rather than rewriting v1:
+
+```sh
+uv run --locked python -m scripts.prepare_dataset --output docs/dataset/split-v2.json
+```
+
+Both model scripts accept `--snapshot` and `--data-dir`. Evaluation refuses mismatched training metadata and identifies an unknown training history as diagnostic-only. Reports include per-class precision/recall/F1, accuracy, balanced accuracy, Brier score, confusion counts and mistake paths. Reports are not overwritten; use a new output name for each run.
+
+The baseline has its own installer manifest:
+
+```sh
+uv run --locked python -m scripts.install_model \
+  --manifest backend/models/baseline-v1.manifest.json
+```
+
+An alternative manifest installs to its declared filename under `backend/models/`, without replacing the default checkpoint. `--destination` overrides that path. `MODEL_URL` only overrides the default manifest. To serve the baseline, set `MODEL_PATH=backend/models/smiski_baseline_v1.pt` and restart the API.
+
+## Optional dataset collection
 
 ```sh
 uv sync --locked --extra training
-uv run --locked --extra training python -m backend.transfer.main
 ```
 
-Provide images under `data/raw/smiski/` and `data/raw/non_smiski/`, or set `DATA_DIR`. Each class can contain images directly or a `download_manifest.jsonl`. Moved manifests can resolve images by basename within the class directory. Training downloads ImageNet initialization weights on its first run and saves the checkpoint to `MODEL_PATH`.
+Provide images under `data/raw/smiski/` and `data/raw/non_smiski/`, or set `DATA_DIR`. The original loader supports manifests, but new snapshots inventory all supported images in the two class directories, audit manifest metadata and group duplicates. Review the folder labels before treating them as ground truth.
 
 Dataset collection accepts an explicit API key from the shell (the downloader does not load `.env` itself):
 

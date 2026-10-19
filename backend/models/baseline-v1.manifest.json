@@ -1,0 +1,12 @@
+{
+  "version": "baseline-v1-frozen-imagenet",
+  "filename": "smiski_baseline_v1.pt",
+  "sha256": "6f7ea679e5e2827dabd0baed09345b397096e572a667653d8a78c35e4ec0068e",
+  "url": "https://github.com/giomhern/is-it-a-smiski/releases/download/model-v1/smiski_baseline_v1.pt",
+  "labels": {
+    "0": "Non-Smiski",
+    "1": "Smiski"
+  },
+  "metadata": "smiski_baseline_v1.metadata.json",
+  "dataset_fingerprint": "45d171ff988cf7f39b0781bff907a1eeb76d3fe2bac1d85af7dcc43096d36c5d"
+}

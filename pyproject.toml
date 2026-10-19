@@ -16,7 +16,6 @@ dependencies = [
 [project.optional-dependencies]
 training = [
     "aiohttp==3.12.15",
-    "scikit-learn==1.7.2",
 ]
 
 [tool.uv]
