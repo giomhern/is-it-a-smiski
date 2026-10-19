@@ -24,7 +24,7 @@ export default function Home() {
             <p className="panel-caption"><Icon name="sparkle" size={14} /> One photo. One little guess.</p>
             <section className="test-panel" aria-labelledby="test-title">
               <div className="panel-heading"><h2 id="test-title">The Smiski test</h2><span className="panel-number">NO. 001</span></div>
-              <DragDropImageBox className="legacy-upload" />
+              <DragDropImageBox />
             </section>
             <p className="privacy-note"><span className="privacy-dot" /> Photos aren’t saved by this app. Just a look, then gone.</p>
           </div>
