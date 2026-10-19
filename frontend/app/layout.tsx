@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Is it a Smiski?",
-  description: "Created By a Smiski Collector",
+  description: "A tiny photo detective for your glow-in-the-dark friends. Upload a photo and see what a collector’s image model thinks.",
 };
 
 export default function RootLayout({

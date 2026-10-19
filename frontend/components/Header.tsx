@@ -1,27 +1,17 @@
-import Image from "next/image";
+import Link from "next/link";
+import Icon, { BrandMark } from "@/components/Icon";
 
-export type HeaderProps = {
-  className?: string;
-};
-
-export default function Header({ className = "" }: HeaderProps) {
+export default function Header() {
   return (
-    <div className={"w-full mb-5" + className}>
-      <div className="flex flex-col items-center justify-center">
-        <Image
-          src={"/logo.png"}
-          alt="Green smiski figure thinking."
-          height={120}
-          width={120}
-        />
-        <h1 className="text-3xl font-medium text-[var(--smiski-dark-green)]">
-          Do You Have a Smiski?
-        </h1>
-
-        <p className="mt-3 text-xs text-zinc-500">
-          Drag and drop images below to find out if they are smiskis or not.
-        </p>
-      </div>
-    </div>
+    <header className="site-header">
+      <Link className="brand" href="/" aria-label="Is it a Smiski? Home">
+        <span className="brand-mark"><BrandMark /></span>
+        <span>is it a smiski<span className="brand-question">?</span></span>
+      </Link>
+      <nav aria-label="Main navigation">
+        <a className="how-link" href="#how-it-works">How it works</a>
+        <a className="github-link" href="https://github.com/giomhern/is-it-a-smiski">View on GitHub <Icon name="arrow" size={16} /></a>
+      </nav>
+    </header>
   );
 }
