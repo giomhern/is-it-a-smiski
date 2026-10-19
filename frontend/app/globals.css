@@ -115,3 +115,17 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+.examples { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.examples-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 10px; color: var(--muted); margin-bottom: 12px; }
+.examples-heading > span:last-child { display: inline-flex; align-items: center; gap: 4px; color: var(--green); }
+.example-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.example-button { display: flex; align-items: center; gap: 9px; text-align: left; padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: transparent; min-height: 64px; transition: background .2s, border-color .2s; }
+.example-button:hover:not(:disabled), .example-button[aria-pressed="true"] { background: #f0f5e8; border-color: #9aaa83; }
+.example-button:disabled { opacity: .6; }
+.example-button img { border-radius: 5px; width: 40px; height: 40px; object-fit: cover; flex-shrink: 0; }
+.example-button strong { display: block; color: var(--ink); font-size: 11px; font-weight: 550; }
+.example-button small { display: block; color: var(--muted); font-size: 9px; margin-top: 4px; }
+.example-button > svg { margin-left: auto; flex-shrink: 0; color: var(--muted); }
+.legacy-upload .example-button { background: transparent; }
+@media (max-width: 380px) { .example-options { grid-template-columns: 1fr; } }

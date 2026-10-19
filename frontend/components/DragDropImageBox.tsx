@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import ExamplePicker from "@/components/ExamplePicker";
 import { motion, AnimatePresence } from "motion/react";
 
 export type PredictionResult = {
@@ -327,6 +328,18 @@ export default function DragDropImageBox({
           )}
         </AnimatePresence>
       </motion.div>
+
+      <ExamplePicker
+        disabled={loading}
+        selectedName={items[0]?.file.name}
+        onError={(message) => setErrors([message])}
+        onSelect={(file) => {
+          setItems([{ id: `example_${file.name}`, file, url: URL.createObjectURL(file) }]);
+          setErrors([]);
+          setResult(null);
+          onFiles?.([file]);
+        }}
+      />
 
       {/* Errors */}
       <AnimatePresence>
