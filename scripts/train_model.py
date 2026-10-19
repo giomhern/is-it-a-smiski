@@ -40,7 +40,7 @@ def extract_features(model, records, data_dir, batch_size):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--snapshot", type=Path, default=Path("docs/dataset/split-v1.json")
+        "--snapshot", type=Path, default=Path("data/splits/split-v1.json")
     )
     parser.add_argument("--data-dir", type=Path, default=default_data_dir())
     parser.add_argument(

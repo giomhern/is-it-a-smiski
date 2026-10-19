@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 from backend.config import get_model_path
 from backend.helpers.dataset import default_data_dir, file_sha256, load_snapshot
-from backend.helpers.evaluation import calculate_metrics, markdown_report
+from backend.helpers.evaluation import calculate_metrics
 from backend.transfer.main import SmiskiClassifier, SmiskiDataset
 
 
@@ -46,22 +46,21 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", type=Path, default=get_model_path())
     parser.add_argument(
-        "--snapshot", type=Path, default=Path("docs/dataset/split-v1.json")
+        "--snapshot", type=Path, default=Path("data/splits/split-v1.json")
     )
     parser.add_argument("--data-dir", type=Path, default=default_data_dir())
     parser.add_argument(
         "--split", choices=["train", "validation", "test"], default="test"
     )
     parser.add_argument(
-        "--output", type=Path, default=Path("docs/evaluation/legacy-diagnostic.json")
+        "--output", type=Path, default=Path("data/evaluation/legacy-diagnostic.json")
     )
-    parser.add_argument("--title", default="Initial checkpoint diagnostic")
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--threads", type=int, default=4)
     args = parser.parse_args()
     if args.batch_size < 1 or args.threads < 1:
         parser.error("batch size and threads must be positive")
-    if args.output.exists() or args.output.with_suffix(".md").exists():
+    if args.output.exists():
         parser.error("Report exists; use a new --output to preserve earlier results")
     torch.set_num_threads(args.threads)
     torch.use_deterministic_algorithms(True)
@@ -115,7 +114,6 @@ def main():
         )
     report = {
         "schema_version": 1,
-        "title": args.title,
         "evaluation_status": status,
         "checkpoint_sha256": checkpoint_hash,
         "dataset_fingerprint": snapshot["fingerprint"],
@@ -135,7 +133,6 @@ def main():
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
-    args.output.with_suffix(".md").write_text(markdown_report(report))
     print(
         f"{status}: accuracy {metrics['accuracy']:.3%}, macro F1 {metrics['macro_f1']:.4f}; {args.output}"
     )

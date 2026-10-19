@@ -12,7 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data-dir", type=Path, default=default_data_dir())
     parser.add_argument(
-        "--output", type=Path, default=Path("docs/dataset/split-v1.json")
+        "--output", type=Path, default=Path("data/splits/split-v1.json")
     )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--distance", type=int, default=6)

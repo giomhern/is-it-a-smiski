@@ -18,9 +18,10 @@
 - Use Prettier defaults for TypeScript/React/CSS and Ruff formatting/import sorting for Python; use maintenance tools without adding runtime dependencies.
 - Follow PEP 8 in Python. Keep training-only work and optimizer initialization out of API startup and inference.
 - Keep validation/inference preprocessing shared and deterministic. Do not alter checkpoint architecture, class ordering, preprocessing, or recorded model provenance as incidental cleanup.
-- Retain useful test fixtures, versioned dataset snapshots, model metadata, and evaluation reports. These are reproducibility evidence, not dead code.
+- Keep useful test fixtures and checksum manifests in Git. Store generated dataset snapshots, per-image reports, and training metadata under ignored `data/` or in release assets; preserve historical provenance without duplicating artifacts in source.
 - Keep dependencies declared in `pyproject.toml` and `frontend/package.json`; commit `uv.lock` and `frontend/package-lock.json`. Use Python 3.11 and Node 22.
-- Make targeted changes. Do not reformat unrelated files, replace working infrastructure, or create documentation that merely repeats other documentation.
+- Keep code and text concise. Prefer README setup and essential model limitations over miscellaneous audit logs, release instructions, or duplicate reports. Do not add documentation that repeats other documentation.
+- Make targeted changes; do not reformat unrelated files or replace working infrastructure.
 
 ## Accessibility and privacy
 
