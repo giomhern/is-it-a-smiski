@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlsplit
 
 from PIL import Image
 
@@ -63,8 +64,14 @@ class CandidateTests(unittest.TestCase):
                 "scripts.collect_candidates.fetch",
                 side_effect=[response, photo(), photo()],
             ) as fetch:
-                collect(out, records, ["green toys"], "non_smiski", 3)
+                collect(
+                    out, records, ["green toys"], "non_smiski", 3, title_phrase=True
+                )
                 self.assertEqual(fetch.call_count, 3)
+                params = parse_qs(urlsplit(fetch.call_args_list[0].args[0]).query)
+                self.assertEqual(params["title"], ['"green toys"'])
+                self.assertNotIn("q", params)
+                self.assertNotIn("category", params)
             self.assertEqual(
                 [row["status"] for row in records],
                 ["candidate", "rejected", "rejected"],
@@ -83,6 +90,9 @@ class CandidateTests(unittest.TestCase):
             self.assertNotIn('<script>alert("unsafe")</script>', page)
             self.assertIn("&lt;script&gt;", page)
             self.assertIn("Photographer", page)
+            records[0]["review"] = "reject"
+            gallery(out, records)
+            self.assertNotIn("<article data-id=", (out / "index.html").read_text())
 
     def test_rate_limit_preserves_completed_candidates(self):
         with tempfile.TemporaryDirectory() as directory:

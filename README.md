@@ -86,11 +86,13 @@ Collect review candidates with the free [Openverse API](https://api.openverse.or
 uv run --locked python -m scripts.collect_candidates \
   --queries "smiski" "smiski figurine" "スミスキー" --label smiski
 uv run --locked python -m scripts.collect_candidates \
-  --queries "Sonny Angel" "green figurine" "frog figurine" --label non_smiski
+  --queries "Sonny Angel" --title-phrase --label non_smiski
+uv run --locked python -m scripts.collect_candidates \
+  --queries "green figurine" "frog figurine" --label non_smiski
 open data/candidates-v1/index.html
 ```
 
-This separate collector leaves the Flickr downloader unchanged. It requests up to 10 results per query, filters to CC0/CC BY photos, saves source/creator/license metadata, rejects corrupt or undersized images, and flags possible blur, exposure problems, and near duplicates. Exact pixel duplicates are rejected within the collection; reruns preserve existing candidates. Downloads stay under ignored `data/candidates-v1/`, outside training folders.
+This separate collector leaves the Flickr downloader unchanged. It requests up to 10 results per query, filters to CC0/CC BY images, saves source/creator/license metadata, rejects corrupt or undersized images, and flags possible blur, exposure problems, and near duplicates. Use `--title-phrase` for brands to avoid matches in unrelated descriptions. Results without category metadata are included; visually confirm they are photographs of the intended subject. Exact pixel duplicates are rejected within the collection; reruns preserve existing candidates. Downloads stay under ignored `data/candidates-v1/`, outside training folders.
 
 Inspect the gallery, verify each original source/license and host terms, then download review decisions. Import them to resume later:
 

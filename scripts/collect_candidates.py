@@ -78,7 +78,7 @@ def save_manifest(out, records):
     temporary.replace(out / "manifest.json")
 
 
-def collect(out, records, queries, label, per_query):
+def collect(out, records, queries, label, per_query, title_phrase=False):
     known_ids = {row["id"] for row in records}
     for query in queries:
         print(f"Searching {query!r} (up to {per_query} results)", flush=True)
@@ -90,9 +90,10 @@ def collect(out, records, queries, label, per_query):
                     + "?"
                     + urlencode(
                         {
-                            "q": query,
+                            "title" if title_phrase else "q": (
+                                f'"{query}"' if title_phrase else query
+                            ),
                             "license": "cc0,by",
-                            "category": "photograph",
                             "page_size": min(20, per_query),
                             "page": page,
                         }
@@ -120,6 +121,7 @@ def collect(out, records, queries, label, per_query):
                 }
                 row.update(
                     query=query,
+                    title_phrase=title_phrase,
                     proposed_label=label,
                     page_url=result.get("foreign_landing_url"),
                     source_url=result.get("url"),
@@ -238,7 +240,7 @@ def safe_link(url):
 def gallery(out, records):
     cards = []
     for row in records:
-        if row["status"] != "candidate":
+        if row["status"] != "candidate" or row["review"] == "reject":
             continue
         options = "".join(
             f'<option value="{value}" {"selected" if row["review"] == value else ""}>{value}</option>'
@@ -284,6 +286,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--queries", nargs="+")
     parser.add_argument(
+        "--title-phrase",
+        action="store_true",
+        help="Match each query as an exact phrase in image titles (useful for brands)",
+    )
+    parser.add_argument(
         "--label", choices=["smiski", "non_smiski"], help="Proposed label only"
     )
     parser.add_argument(
@@ -315,7 +322,14 @@ def main():
         if args.decisions:
             apply_decisions(records, args.decisions)
         else:
-            collect(out, records, args.queries, args.label, args.per_query)
+            collect(
+                out,
+                records,
+                args.queries,
+                args.label,
+                args.per_query,
+                args.title_phrase,
+            )
     except (RateLimited, URLError, ValueError, TypeError) as error:
         print(f"Stopped: {error}")
         failed = True
