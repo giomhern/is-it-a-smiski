@@ -71,14 +71,15 @@ def main():
         print(f"Healthy after {time.monotonic() - started:.1f}s", flush=True)
         cases = [
             ((4000, 3000), "RGB", "JPEG", 1, 200),
-            ((8000, 5000), "RGB", "JPEG", 1, 200),
-            ((8000, 5000), "RGBA", "PNG", 1, 200),
-            ((8000, 5000), "RGB", "JPEG", 6, 200),
-            ((8000, 5000), "RGBA", "PNG", 6, 200),
-            ((8000, 5000), "CMYK", "JPEG", 1, 200),
+            ((8000, 4000), "RGB", "JPEG", 1, 200),
+            ((8000, 4000), "RGBA", "PNG", 1, 200),
+            ((8000, 4000), "RGB", "JPEG", 6, 200),
+            ((8000, 4000), "RGBA", "PNG", 6, 200),
+            ((8000, 4000), "CMYK", "JPEG", 1, 200),
             ((4000, 4000), "RGBA", "WEBP", 1, 200),
             ((8000, 5000), "RGBA", "WEBP", 1, 400),
-            ((8001, 5000), "RGB", "JPEG", 1, 400),
+            ((8001, 4000), "RGB", "JPEG", 1, 400),
+            ((8000, 5000), "RGBA", "PNG", 6, 400),
         ]
         for run in range(2):
             for size, mode, fmt, orientation, expected in cases:
@@ -102,6 +103,10 @@ def main():
         print(docker("stats", "--no-stream", "--format", "{{.MemUsage}}", container))
         print("Passed at 512 MiB, no swap, 0.1 CPU; no OOM events.")
     finally:
+        subprocess.run(
+            ["docker", "exec", container, "cat", "/sys/fs/cgroup/memory.events"],
+            check=False,
+        )
         print(docker("logs", "--tail", "10", container))
         docker("rm", "--force", container)
 

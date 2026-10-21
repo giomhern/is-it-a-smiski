@@ -64,7 +64,9 @@ Open **http://localhost:3000**, choose an example or upload a photo, then click 
 
 ## API
 
-`GET /health` checks readiness. `POST /api/predict` accepts one multipart `image` (JPEG, PNG, or WebP; up to 10 MiB; JPEG/PNG up to 40 megapixels, WebP up to 16 megapixels; each side up to 16,384 pixels) and returns a prediction, confidence, and both class scores.
+`GET /health` checks readiness. `POST /api/predict` accepts one multipart `image` (JPEG, PNG, or WebP; up to 10 MiB; JPEG/PNG up to 32 megapixels, WebP up to 16 megapixels; each side up to 16,384 pixels) and returns a prediction, confidence, and both class scores.
+
+Prediction attempts share an instance-wide budget of 30 per minute and 300 per hour. Excess requests return `429` with `Retry-After` before parsing uploads; health checks remain available. SQLite keeps the two counters across worker restarts, resetting on container replacement. This bounds inference work, but does not guarantee availability during abuse or distribute limits across multiple instances. Multipart requests are limited to two parts and 128 KiB per text field. The Docker runtime uses a non-root user with read-only application files.
 
 ```sh
 curl -f -F image=@tests/smiski/test-smiski.jpeg http://localhost:5050/api/predict
@@ -146,5 +148,7 @@ npm run build
 ```
 
 Inference tests require the installed checkpoint and its export. Contribution and coding standards live in [AGENTS.md](AGENTS.md).
+
+The development lint dependency `braces` has an [unpatched advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm). It is not included in the deployed static site or API image.
 
 Independent fan project; unaffiliated with [Smiski](https://smiski.com/e/smiski/).

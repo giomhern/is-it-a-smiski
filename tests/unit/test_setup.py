@@ -144,6 +144,17 @@ class ApiSmokeTests(unittest.TestCase):
             from backend.api.app import app
         cls.client = app.test_client()
 
+    def setUp(self):
+        from backend.api.app import app
+
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        config = patch.dict(
+            app.config, {"RATE_LIMIT_DB": str(Path(directory.name) / "limits.db")}
+        )
+        config.start()
+        self.addCleanup(config.stop)
+
     def test_health_and_invalid_uploads(self):
         self.assertEqual(self.client.get("/health").json, {"status": "ok"})
         self.assertEqual(self.client.post("/api/predict").status_code, 400)
@@ -195,7 +206,7 @@ class ApiSmokeTests(unittest.TestCase):
                 "/api/predict", data={"image": (io.BytesIO(b"fixture"), "large.jpg")}
             )
             self.assertEqual(response.status_code, 400)
-            self.assertIn("40 megapixels", response.json["error"])
+            self.assertIn("32 megapixels", response.json["error"])
             image.convert.assert_not_called()
             image.load.assert_not_called()
 

@@ -1,21 +1,30 @@
 import os
+import sqlite3
+import tempfile
+from pathlib import Path
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from PIL import Image
 
 from backend.config import get_model_path
+from backend.helpers.rate_limit import retry_after
 from backend.helpers.uploads import webp_pixels
 from backend.inference import SmiskiPredictor
 
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
-MAX_IMAGE_PIXELS = 40_000_000
+MAX_IMAGE_PIXELS = 32_000_000
 MAX_WEBP_PIXELS = 16_000_000
 MAX_IMAGE_DIMENSION = 16_384
 ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP"}
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
+app.config["MAX_FORM_PARTS"] = 2
+app.config["MAX_FORM_MEMORY_SIZE"] = 128 * 1024
+app.config["RATE_LIMIT_DB"] = str(
+    Path(tempfile.gettempdir()) / "smiski-rate-limits.sqlite3"
+)
 allowed_origins = [
     origin.strip()
     for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
@@ -24,6 +33,24 @@ allowed_origins = [
 CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
 clf = SmiskiPredictor(get_model_path())
+
+
+@app.before_request
+def limit_predictions():
+    if request.endpoint != "predict" or request.method != "POST":
+        return None
+    try:
+        wait = retry_after(app.config["RATE_LIMIT_DB"])
+    except sqlite3.Error:
+        app.logger.exception("Prediction budget unavailable")
+        return jsonify({"error": "The server is unavailable. Please try again."}), 503
+    if wait:
+        return (
+            jsonify({"error": "Too many requests. Please try again later."}),
+            429,
+            {"Retry-After": str(wait)},
+        )
+    return None
 
 
 @app.route("/api/predict", methods=["POST"])
@@ -52,7 +79,7 @@ def predict():
                     {"error": "Choose a photo under 16,384 pixels per side"}
                 ), 400
             if image.width * image.height > MAX_IMAGE_PIXELS:
-                return jsonify({"error": "Choose a photo under 40 megapixels"}), 400
+                return jsonify({"error": "Choose a photo under 32 megapixels"}), 400
             if image.format == "WEBP" and image.width * image.height > MAX_WEBP_PIXELS:
                 return jsonify(
                     {"error": "Choose a WebP photo under 16 megapixels"}
@@ -80,7 +107,7 @@ def predict():
 
 @app.errorhandler(413)
 def upload_too_large(error):
-    return jsonify({"error": "Upload exceeds the 16 MB request limit"}), 413
+    return jsonify({"error": "Upload exceeds the request size or form limits"}), 413
 
 
 @app.route("/health", methods=["GET"])

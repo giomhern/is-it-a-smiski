@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 import torch
@@ -215,6 +216,17 @@ class EvaluationTests(unittest.TestCase):
 
 
 class ServingConsistencyTests(unittest.TestCase):
+    def setUp(self):
+        from backend.api.app import app
+
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        config = patch.dict(
+            app.config, {"RATE_LIMIT_DB": str(Path(directory.name) / "limits.db")}
+        )
+        config.start()
+        self.addCleanup(config.stop)
+
     def test_exported_runtime_matches_checkpoint_scores(self):
         from backend.api.app import clf
         from backend.config import ROOT_DIR, get_model_path
