@@ -80,6 +80,27 @@ The default checkpoint has unknown training provenance; its scores are uncalibra
 
 Training is optional and requires local photos in `data/raw/{smiski,non_smiski}/` (or `DATA_DIR`). Generated splits, reports, and training metadata stay outside Git.
 
+Collect review candidates with the free [Openverse API](https://api.openverse.org/v1/) (no key needed):
+
+```sh
+uv run --locked python -m scripts.collect_candidates \
+  --queries "smiski" "smiski figurine" "スミスキー" --label smiski
+uv run --locked python -m scripts.collect_candidates \
+  --queries "Sonny Angel" "green figurine" "frog figurine" --label non_smiski
+open data/candidates-v1/index.html
+```
+
+This separate collector leaves the Flickr downloader unchanged. It requests up to 10 results per query, filters to CC0/CC BY photos, saves source/creator/license metadata, rejects corrupt or undersized images, and flags possible blur, exposure problems, and near duplicates. Exact pixel duplicates are rejected within the collection; reruns preserve existing candidates. Downloads stay under ignored `data/candidates-v1/`, outside training folders.
+
+Inspect the gallery, verify each original source/license and host terms, then download review decisions. Import them to resume later:
+
+```sh
+uv run --locked python -m scripts.collect_candidates \
+  --decisions ~/Downloads/review-decisions.json
+```
+
+Approval records a reviewed label in `manifest.json`; it does not move images into training. Openverse metadata does not establish permission, and quality/duplicate flags need visual review. Before creating a new dataset, check against existing photos and keep related photographer/shoot/listing images in the same split. Collection respects rate limits and stops on HTTP 429; retry later. See [Openverse terms](https://docs.openverse.org/terms_of_service.html).
+
 ```sh
 uv run --locked python -m scripts.prepare_dataset
 uv run --locked --extra training python -m scripts.train_model --output backend/models/my_model.pt
